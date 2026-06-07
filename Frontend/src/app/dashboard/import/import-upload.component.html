@@ -1,0 +1,106 @@
+<section class="imp">
+  <header class="imp__header">
+    <div class="imp__heading">
+      <app-breadcrumb [items]="crumbs()" />
+      <h1 class="imp__title">{{ title() }}</h1>
+    </div>
+    <div class="imp__actions">
+      <button mat-stroked-button (click)="downloadTemplate()">
+        <mat-icon>download</mat-icon> Descargar ejemplo
+      </button>
+      <button mat-stroked-button (click)="openInstructions()">
+        <mat-icon>help_outline</mat-icon> Instrucciones
+      </button>
+      <button mat-stroked-button (click)="goHistory()">
+        <mat-icon>history</mat-icon> Historial
+      </button>
+    </div>
+  </header>
+
+  <mat-card appearance="outlined" class="imp__card">
+    <div
+      class="dropzone"
+      [class.dropzone--over]="dragOver()"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave()"
+    >
+      <button mat-flat-button color="primary" (click)="fileInput.click()" [disabled]="importing()">
+        <mat-icon>upload_file</mat-icon> Seleccione el archivo
+      </button>
+      <span class="dropzone__name">{{ file()?.name ?? 'No se ha seleccionado un archivo.' }}</span>
+      <small>Arrastra aquí o selecciona un archivo con extensión .xlsx</small>
+      <input
+        #fileInput
+        type="file"
+        hidden
+        accept=".xlsx,.xls"
+        (change)="onFileSelected(fileInput)"
+      />
+    </div>
+
+    @if (loadingPreview()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (preview(); as p) {
+      <div class="imp__summary">
+        <span class="chip chip--ok">{{ p.validItems }} válidos</span>
+        @if (p.invalidItems > 0) {
+          <span class="chip chip--err">{{ p.invalidItems }} con errores</span>
+        }
+        <span class="imp__muted">de {{ p.totalItems }} ({{ p.totalRows }} filas)</span>
+        @if (p.truncated) {
+          <span class="imp__muted">· mostrando los primeros {{ p.rows.length }}</span>
+        }
+        <span class="imp__spacer"></span>
+        <button mat-flat-button color="primary" [disabled]="!canImport()" (click)="importNow()">
+          <mat-icon>play_arrow</mat-icon> Importar {{ p.validItems }} válidos
+        </button>
+      </div>
+
+      <div class="imp__scroll">
+        <table class="ptable">
+          <thead>
+            <tr>
+              <th class="ptable__st">Estado</th>
+              @for (col of p.columns; track col.key) {
+                <th>{{ col.header }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of p.rows; track row._row) {
+              <tr [class.ptable__row--err]="row._errors.length > 0">
+                <td class="ptable__st">
+                  @if (row._errors.length > 0) {
+                    <mat-icon class="ptable__err" [matTooltip]="row._errors.join(' · ')"
+                      >error</mat-icon
+                    >
+                  } @else {
+                    <mat-icon class="ptable__ok">check_circle</mat-icon>
+                  }
+                </td>
+                @for (col of p.columns; track col.key) {
+                  <td>{{ cell(row, col.key) }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (p.invalidItems > 0) {
+        <p class="imp__note">
+          <mat-icon>info</mat-icon>
+          Las filas con errores se omitirán. Puedes importar las válidas ahora y corregir el resto
+          luego (quedarán en el historial de incidencias).
+        </p>
+      }
+    } @else if (!loadingPreview()) {
+      <p class="imp__empty">
+        Selecciona un archivo .xlsx para previsualizar lo que se va a importar.
+      </p>
+    }
+  </mat-card>
+</section>

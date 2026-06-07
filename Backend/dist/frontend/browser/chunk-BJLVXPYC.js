@@ -1,0 +1,1 @@
+import{mb as i}from"./chunk-GNE42O72.js";var o="S/";function m(n){if(n==null)return"";let r=n.toLocaleString("es-PE",{minimumFractionDigits:2,maximumFractionDigits:2});return`${o} ${r}`}var t=class n{transform(r){return m(r)}static \u0275fac=function(e){return new(e||n)};static \u0275pipe=i({name:"price",type:n,pure:!0})};export{m as a,t as b};

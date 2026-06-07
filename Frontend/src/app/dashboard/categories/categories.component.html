@@ -1,0 +1,83 @@
+<section class="cat">
+  <header class="cat__header">
+    <div>
+      <h1 class="cat__title">Categorías</h1>
+      <p class="cat__subtitle">Organiza el catálogo en una jerarquía de hasta 3 niveles.</p>
+    </div>
+    <button mat-flat-button color="primary" class="cat__new" (click)="create()">
+      <mat-icon>add</mat-icon>
+      Nueva categoría
+    </button>
+  </header>
+
+  <mat-card appearance="outlined" class="cat__card">
+    <app-data-table
+      [columns]="columns"
+      [data]="sortedRows()"
+      [loading]="loading()"
+      [paginated]="false"
+      emptyMessage="Aún no hay categorías. Crea la primera."
+    >
+      <ng-template appDataTableCell="name" let-c>
+        <div class="cat__name">
+          <span class="cat__name-main">{{ c.name }}</span>
+          <span class="cat__name-slug">/{{ c.slug }}</span>
+        </div>
+      </ng-template>
+
+      <ng-template appDataTableCell="status" let-c>
+        <span class="badge" [class.badge--ok]="c.status === 'active'">
+          {{ c.status === 'active' ? 'Activa' : 'Inactiva' }}
+        </span>
+      </ng-template>
+
+      <ng-template appDataTableCell="reorder" let-c>
+        <div class="cat__reorder">
+          <button
+            type="button"
+            class="cat__arrow"
+            [disabled]="isFirst(c)"
+            (click)="moveUp(c)"
+            aria-label="Mover arriba"
+          >
+            <mat-icon>keyboard_arrow_up</mat-icon>
+          </button>
+          <button
+            type="button"
+            class="cat__arrow"
+            [disabled]="isLast(c)"
+            (click)="moveDown(c)"
+            aria-label="Mover abajo"
+          >
+            <mat-icon>keyboard_arrow_down</mat-icon>
+          </button>
+        </div>
+      </ng-template>
+
+      <ng-template appDataTableCell="actions" let-c>
+        <button
+          mat-icon-button
+          [matMenuTriggerFor]="catMenu"
+          [matMenuTriggerData]="{ c: c }"
+          aria-label="Acciones de la categoría"
+        >
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </ng-template>
+    </app-data-table>
+  </mat-card>
+</section>
+
+<mat-menu #catMenu="matMenu">
+  <ng-template matMenuContent let-c="c">
+    <button mat-menu-item (click)="edit(c)">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </button>
+    <mat-divider />
+    <button mat-menu-item class="menu-item--danger" (click)="remove(c)">
+      <mat-icon>delete</mat-icon>
+      Eliminar
+    </button>
+  </ng-template>
+</mat-menu>

@@ -1,0 +1,83 @@
+<h2 mat-dialog-title class="picker__title">
+  {{ data.multiple ? 'Seleccionar imágenes' : 'Seleccionar imagen' }}
+</h2>
+
+<mat-dialog-content class="picker">
+  <div class="picker__toolbar">
+    <mat-form-field appearance="outline" class="picker__search">
+      <mat-icon matPrefix>search</mat-icon>
+      <mat-label>Buscar por nombre</mat-label>
+      <input matInput [formControl]="searchCtrl" />
+    </mat-form-field>
+
+    <div class="picker__filters">
+      @for (f of ['all', 'unused', 'used']; track f) {
+        <button
+          mat-stroked-button
+          type="button"
+          [class.picker__chip--on]="usageFilter() === f"
+          (click)="setUsage($any(f))"
+        >
+          {{ f === 'all' ? 'Todas' : f === 'unused' ? 'Sin usar' : 'En uso' }}
+        </button>
+      }
+    </div>
+
+    <span class="picker__spacer"></span>
+
+    <button mat-flat-button color="primary" type="button" (click)="fileInput.click()" [disabled]="uploading()">
+      <mat-icon>upload</mat-icon>
+      Subir
+    </button>
+    <input #fileInput type="file" hidden multiple accept="image/jpeg,image/png,image/webp,image/gif" (change)="onFilesSelected(fileInput)" />
+  </div>
+
+  @if (loading() || uploading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  @if (!loading() && assets().length === 0) {
+    <p class="picker__empty">No hay imágenes. Sube alguna con el botón “Subir”.</p>
+  }
+
+  <div class="picker__grid">
+    @for (asset of assets(); track asset.id) {
+      <button
+        type="button"
+        class="tile"
+        [class.tile--selected]="isSelected(asset)"
+        [class.tile--excluded]="isExcluded(asset)"
+        [disabled]="isExcluded(asset)"
+        (click)="toggle(asset)"
+        [attr.aria-pressed]="isSelected(asset)"
+      >
+        <img [src]="asset.thumbnailUrl ?? asset.url" [alt]="asset.originalName ?? 'imagen'" loading="lazy" />
+        @if (isSelected(asset)) {
+          <span class="tile__check"><mat-icon>check</mat-icon></span>
+        }
+        @if (isExcluded(asset)) {
+          <span class="tile__badge">Añadida</span>
+        } @else if (asset.inUse) {
+          <span class="tile__badge tile__badge--use">En uso</span>
+        }
+      </button>
+    }
+  </div>
+
+  @if (total() > pageSize()) {
+    <mat-paginator
+      [length]="total()"
+      [pageSize]="pageSize()"
+      [pageIndex]="pageIndex()"
+      [pageSizeOptions]="[24, 48, 96]"
+      (page)="onPage($event)"
+    />
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-flat-button color="primary" (click)="confirm()" [disabled]="selectedCount() === 0">
+    {{ data.multiple ? 'Añadir (' + selectedCount() + ')' : 'Seleccionar' }}
+  </button>
+</mat-dialog-actions>

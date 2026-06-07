@@ -1,0 +1,49 @@
+<section class="users">
+  <header class="users__header">
+    <div>
+      <h1 class="users__title">Usuarios</h1>
+      <p class="users__subtitle">Gestiona las cuentas, los roles y los accesos.</p>
+    </div>
+    <button mat-flat-button color="primary" class="users__new" (click)="create()">
+      <mat-icon>person_add</mat-icon>
+      Nuevo usuario
+    </button>
+  </header>
+
+  <mat-card appearance="outlined" class="users__card">
+    <app-data-table
+      [columns]="columns"
+      [data]="users()"
+      [total]="total()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [loading]="loading()"
+      emptyMessage="No hay usuarios."
+      (page)="onPage($event)"
+    >
+      <ng-template appDataTableCell="roles" let-user>
+        <div class="users__roles">
+          @for (role of user.roles; track role) {
+            <mat-chip [highlighted]="role === 'ADMIN'">{{ role }}</mat-chip>
+          }
+        </div>
+      </ng-template>
+
+      <ng-template appDataTableCell="actions" let-user>
+        <button mat-icon-button (click)="edit(user)" matTooltip="Editar" aria-label="Editar usuario">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          color="warn"
+          (click)="remove(user)"
+          [disabled]="isSelf(user)"
+          [matTooltip]="isSelf(user) ? 'No puedes eliminarte' : 'Eliminar'"
+          aria-label="Eliminar usuario"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </ng-template>
+    </app-data-table>
+  </mat-card>
+</section>

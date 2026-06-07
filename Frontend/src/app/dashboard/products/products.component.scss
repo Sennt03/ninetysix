@@ -1,0 +1,157 @@
+.prod__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.prod__title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--brand-slate-900);
+}
+
+.prod__subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--brand-slate-500);
+}
+
+.prod__new {
+  height: 44px;
+  border-radius: 11px;
+  font-weight: 600;
+}
+
+.prod__card {
+  padding: 0;
+  overflow: hidden;
+}
+
+.prod__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--brand-slate-200);
+}
+
+.prod__search {
+  flex: 1 1 280px;
+}
+
+.prod__filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.prod__featured {
+  margin-left: 0.25rem;
+}
+
+.thumb {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--brand-slate-100);
+}
+
+.thumb--empty mat-icon {
+  color: var(--brand-slate-400);
+}
+
+.prod__name {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.prod__name-row {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.prod__name-main {
+  font-weight: 600;
+  color: var(--brand-slate-900);
+}
+
+.prod__name-slug {
+  font-size: 0.8rem;
+  color: var(--brand-slate-400);
+}
+
+.prod__star {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  color: #f59e0b;
+}
+
+.menu-item--danger {
+  color: #dc2626;
+
+  mat-icon {
+    color: #dc2626;
+  }
+}
+
+.prod__cats {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.prod__muted {
+  color: var(--brand-slate-400);
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  background: var(--brand-slate-100);
+  color: var(--brand-slate-700);
+}
+
+.chip--more {
+  background: transparent;
+  color: var(--brand-slate-400);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--brand-slate-100);
+  color: var(--brand-slate-500);
+}
+
+.badge--active {
+  background: var(--brand-success-soft);
+  color: var(--brand-success-ink);
+}
+
+.badge--draft {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge--archived {
+  background: var(--brand-slate-200);
+  color: var(--brand-slate-700);
+}

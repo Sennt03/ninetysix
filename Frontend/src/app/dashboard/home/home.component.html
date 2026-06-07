@@ -1,0 +1,31 @@
+<section class="home">
+  <header class="home__head">
+    <h1 class="home__title">Hola, {{ user()?.username }} 👋</h1>
+    <p class="home__subtitle">Bienvenido al panel de administración de Ninetysix.</p>
+  </header>
+
+  <div class="home__grid">
+    <a class="home__card" routerLink="/panel/profile">
+      <span class="home__icon"><mat-icon>badge</mat-icon></span>
+      <h2>Mi perfil</h2>
+      <p>Consulta los datos de tu cuenta y tu rol.</p>
+      <span class="home__cta">Ver perfil <mat-icon>arrow_forward</mat-icon></span>
+    </a>
+
+    @if (isAdmin()) {
+      <a class="home__card" routerLink="/panel/users">
+        <span class="home__icon"><mat-icon>group</mat-icon></span>
+        <h2>Usuarios</h2>
+        <p>Administra usuarios, roles y permisos.</p>
+        <span class="home__cta">Gestionar <mat-icon>arrow_forward</mat-icon></span>
+      </a>
+    }
+
+    <div class="home__card home__card--muted">
+      <span class="home__icon home__icon--muted"><mat-icon>storefront</mat-icon></span>
+      <h2>Módulos</h2>
+      <p>Aquí irán los módulos del ERP (productos, ventas, inventario…).</p>
+      <span class="home__cta home__cta--muted">Próximamente</span>
+    </div>
+  </div>
+</section>

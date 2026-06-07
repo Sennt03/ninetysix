@@ -1,0 +1,202 @@
+:host {
+  display: block;
+}
+
+/* ---------------- Carrusel destacado ---------------- */
+.rev {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 86px) clamp(16px, 5vw, 40px) clamp(10px, 3vw, 24px);
+}
+.rev__featured {
+  position: relative;
+  background: linear-gradient(180deg, #efe4dc, #e7d8ce);
+  border: 1px solid var(--st-line);
+  border-radius: var(--st-radius-lg);
+  padding: clamp(40px, 6vw, 64px) clamp(48px, 8vw, 90px);
+  text-align: center;
+  overflow: hidden;
+}
+.rev__quotemark {
+  position: absolute;
+  top: -10px;
+  left: 24px;
+  font-family: var(--st-font-display);
+  font-size: 7rem;
+  line-height: 1;
+  color: rgb(176 141 122 / 28%);
+  pointer-events: none;
+}
+.rev__avatar {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 16px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 28%, var(--st-rose), var(--st-espresso));
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.4rem;
+  border: 3px solid var(--st-white);
+  box-shadow: 0 12px 28px -12px rgb(43 29 24 / 55%);
+}
+.rev__stars {
+  display: inline-flex;
+  gap: 4px;
+  color: var(--st-rose);
+  margin-bottom: 16px;
+}
+.rev__stars svg { width: 20px; height: 20px; }
+.rev__quote {
+  margin: 0 auto 22px;
+  max-width: 60ch;
+  font-size: clamp(1.05rem, 2.4vw, 1.35rem);
+  line-height: 1.6;
+  color: var(--st-espresso);
+  font-weight: 500;
+}
+.rev__name {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--st-espresso);
+}
+.rev__loc {
+  margin: 2px 0 0;
+  color: var(--st-muted);
+  font-size: 0.92rem;
+}
+.rev__bought {
+  margin: 10px 0 0;
+  color: var(--st-rose-deep);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.rev__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--st-white);
+  color: var(--st-espresso);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 26px -12px rgb(43 29 24 / 55%);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.rev__nav:hover { background: var(--st-cream); transform: translateY(-50%) scale(1.06); }
+.rev__nav svg { width: 22px; height: 22px; }
+.rev__nav--prev { left: 10px; }
+.rev__nav--next { right: 10px; }
+.rev__dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 26px;
+}
+.rev__dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(43 29 24 / 22%);
+  cursor: pointer;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+.rev__dot.is-active {
+  width: 26px;
+  background: var(--st-espresso);
+}
+
+/* En móvil la tarjeta se estrecha y los botones ‹ › se montaban sobre el
+   texto de la reseña. Reducimos su tamaño, los pegamos al borde y damos
+   suficiente padding lateral para que el texto nunca quede debajo. */
+@media (max-width: 640px) {
+  .rev__featured {
+    padding-left: 56px;
+    padding-right: 56px;
+  }
+  .rev__nav {
+    width: 40px;
+    height: 40px;
+  }
+  .rev__nav svg {
+    width: 20px;
+    height: 20px;
+  }
+  .rev__nav--prev {
+    left: 8px;
+  }
+  .rev__nav--next {
+    right: 8px;
+  }
+}
+
+/* ---------------- Más opiniones ---------------- */
+.more {
+  background: var(--st-bg);
+}
+.more__inner {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: clamp(40px, 6vw, 80px) clamp(16px, 5vw, 40px);
+}
+.more__grid {
+  margin-top: clamp(28px, 4vw, 48px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(16px, 2.4vw, 24px);
+}
+.rcard {
+  background: var(--st-white);
+  border: 1px solid var(--st-line);
+  border-radius: var(--st-radius);
+  padding: 24px;
+  box-shadow: 0 1px 2px rgb(43 29 24 / 5%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.rcard:hover { transform: translateY(-4px); box-shadow: var(--st-shadow); }
+.rcard__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.rcard__avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 35% 28%, var(--st-rose), var(--st-espresso));
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex: none;
+}
+.rcard__name { margin: 0; font-weight: 700; color: var(--st-espresso); }
+.rcard__loc { margin: 1px 0 0; font-size: 0.84rem; color: var(--st-muted); }
+.rcard__stars { display: inline-flex; gap: 3px; color: var(--st-rose); }
+.rcard__stars svg { width: 16px; height: 16px; }
+.rcard__text { margin: 0; color: var(--st-ink); line-height: 1.55; }
+.rcard__bought {
+  margin: auto 0 0;
+  color: var(--st-muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+@media (min-width: 720px) {
+  .more__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

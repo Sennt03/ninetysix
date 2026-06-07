@@ -1,0 +1,38 @@
+.users__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.users__title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--brand-slate-900);
+}
+
+.users__subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--brand-slate-500);
+}
+
+.users__new {
+  height: 44px;
+  border-radius: 11px;
+  font-weight: 600;
+}
+
+.users__card {
+  padding: 0.25rem 0.25rem 0;
+  overflow: hidden;
+}
+
+.users__roles {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}

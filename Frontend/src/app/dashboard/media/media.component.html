@@ -1,0 +1,87 @@
+<section class="media">
+  <header class="media__header">
+    <div>
+      <h1 class="media__title">Archivos</h1>
+      <p class="media__subtitle">Biblioteca de imágenes. Súbelas aquí y reutilízalas en productos y categorías.</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="fileInput.click()" [disabled]="uploading()">
+      <mat-icon>upload</mat-icon>
+      Subir imágenes
+    </button>
+    <input
+      #fileInput
+      type="file"
+      hidden
+      multiple
+      accept="image/jpeg,image/png,image/webp,image/gif"
+      (change)="onFilesSelected(fileInput)"
+    />
+  </header>
+
+  <mat-card appearance="outlined" class="media__card">
+    <div
+      class="dropzone"
+      [class.dropzone--over]="dragOver()"
+      (drop)="onDrop($event)"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave()"
+    >
+      <mat-icon>cloud_upload</mat-icon>
+      <span>Arrastra imágenes aquí o usa el botón “Subir imágenes”.</span>
+      <small>JPG, PNG, WEBP o GIF · máx 5 MB por imagen.</small>
+    </div>
+
+    <div class="media__toolbar">
+      <mat-form-field appearance="outline" class="media__search" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchCtrl" placeholder="Buscar por nombre de archivo" />
+      </mat-form-field>
+
+      <div class="media__filters">
+        @for (opt of usageOptions; track opt.value) {
+          <button
+            mat-stroked-button
+            type="button"
+            [class.media__chip--on]="usageFilter() === opt.value"
+            (click)="setUsage(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    @if (loading() || uploading()) {
+      <mat-progress-bar mode="indeterminate" />
+    }
+
+    @if (!loading() && assets().length === 0) {
+      <p class="media__empty">No hay imágenes con estos filtros.</p>
+    }
+
+    <div class="media__grid">
+      @for (asset of assets(); track asset.id) {
+        <button type="button" class="card" (click)="openDetail(asset)">
+          <span class="card__img">
+            <img [src]="asset.thumbnailUrl ?? asset.url" [alt]="asset.originalName ?? 'imagen'" loading="lazy" />
+            @if (asset.inUse) {
+              <span class="card__badge">En uso</span>
+            }
+          </span>
+          <span class="card__name">{{ asset.originalName ?? 'imagen' }}</span>
+          <span class="card__size">{{ formatSize(asset.sizeBytes) }}</span>
+        </button>
+      }
+    </div>
+
+    @if (total() > pageSize()) {
+      <mat-paginator
+        [length]="total()"
+        [pageSize]="pageSize()"
+        [pageIndex]="pageIndex()"
+        [pageSizeOptions]="[24, 48, 96]"
+        (page)="onPage($event)"
+      />
+    }
+  </mat-card>
+</section>

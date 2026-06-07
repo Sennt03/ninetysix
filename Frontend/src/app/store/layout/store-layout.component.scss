@@ -1,0 +1,42 @@
+:host {
+  display: block;
+}
+
+.store-shell {
+  /* ===========================================================
+     Marca Ninetysix · tienda pública — paleta cálida premium
+     (espresso / taupe / rose-gold / crema). Independiente del
+     panel admin (monocromo). Estos tokens heredan a toda la tienda.
+     =========================================================== */
+  --st-bg: #faf7f4;
+  --st-cream: #f3ece6;
+  --st-sand: #e7ddd4;
+  --st-taupe: #b9a394;
+  --st-rose: #b08d7a;
+  --st-rose-deep: #8a6a58;
+  --st-espresso: #2b1d18;
+  --st-ink: #241a16;
+  --st-muted: #897a70;
+  --st-line: rgb(43 29 24 / 10%);
+  --st-white: #ffffff;
+
+  --st-radius: 16px;
+  --st-radius-lg: 26px;
+  --st-shadow: 0 24px 60px -34px rgb(43 29 24 / 55%);
+
+  --st-font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --st-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  background: var(--st-bg);
+  color: var(--st-espresso);
+  font-family: var(--st-font-body);
+  /* La cabecera es fija; las páginas con hero ocupan el viewport completo. */
+  overflow-x: hidden;
+}
+
+.store-shell__main {
+  flex: 1 0 auto;
+}

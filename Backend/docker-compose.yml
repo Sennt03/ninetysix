@@ -1,0 +1,53 @@
+# Levanta solo lo que necesites:
+#   docker compose up -d mongo      (para DATABASE_TYPE=mongodb)
+#   docker compose up -d postgres   (para DATABASE_TYPE=postgres)
+#   docker compose up -d mysql      (para DATABASE_TYPE=mysql)
+#
+# Puertos desplazados (mysql 3307, postgres 5433, mongo 27018) para poder
+# convivir con otros proyectos que ya usen los puertos por defecto.
+#
+# 'name' fija el proyecto Compose para que NO choque con otros proyectos cuya
+# carpeta también se llame "Backend" (Compose usa el nombre de carpeta por
+# defecto). Garantiza volúmenes/redes propios (ninetysix_*).
+name: ninetysix
+services:
+  mongo:
+    image: mongo:7
+    container_name: ninetysix_mongo
+    restart: unless-stopped
+    ports:
+      - '27018:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: ninetysix_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ninetysix
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  mysql:
+    image: mysql:8
+    container_name: ninetysix_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: ninetysix
+      MYSQL_USER: ninetysix
+      MYSQL_PASSWORD: ninetysix
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mongo_data:
+  postgres_data:
+  mysql_data:

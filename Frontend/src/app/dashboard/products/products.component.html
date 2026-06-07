@@ -1,0 +1,124 @@
+<section class="prod">
+  <header class="prod__header">
+    <div>
+      <h1 class="prod__title">Productos</h1>
+      <p class="prod__subtitle">Gestiona el catálogo, precios y variantes.</p>
+    </div>
+    <button mat-flat-button color="primary" class="prod__new" (click)="newProduct()">
+      <mat-icon>add</mat-icon>
+      Nuevo producto
+    </button>
+  </header>
+
+  <mat-card appearance="outlined" class="prod__card">
+    <div class="prod__toolbar">
+      <mat-form-field appearance="outline" class="prod__search" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchCtrl" placeholder="Buscar por nombre, descripción o SKU" />
+      </mat-form-field>
+
+      <div class="prod__filters">
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Estado</mat-label>
+          <mat-select multiple [value]="statusFilter()" (selectionChange)="onStatusChange($event.value)">
+            @for (s of statuses; track s) {
+              <mat-option [value]="s">{{ statusLabel(s) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Categoría</mat-label>
+          <mat-select [value]="categoryFilter()" (selectionChange)="onCategoryChange($event.value)">
+            <mat-option [value]="null">Todas</mat-option>
+            @for (c of categories(); track c.id) {
+              <mat-option [value]="c.id">{{ c.name }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-slide-toggle
+          class="prod__featured"
+          [checked]="featuredOnly()"
+          (change)="onFeaturedChange($event.checked)"
+        >
+          Destacados
+        </mat-slide-toggle>
+      </div>
+    </div>
+
+    <app-data-table
+      [columns]="columns"
+      [data]="items()"
+      [total]="total()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[25, 50, 100]"
+      [loading]="loading()"
+      emptyMessage="No hay productos con estos filtros."
+      (page)="onPage($event)"
+    >
+      <ng-template appDataTableCell="cover" let-p>
+        @if (p.coverImageUrl) {
+          <img class="thumb" [src]="p.coverImageUrl" [alt]="p.name" />
+        } @else {
+          <span class="thumb thumb--empty"><mat-icon>image</mat-icon></span>
+        }
+      </ng-template>
+
+      <ng-template appDataTableCell="name" let-p>
+        <div class="prod__name">
+          <div class="prod__name-row">
+            <span class="prod__name-main">{{ p.name }}</span>
+            @if (p.featured) {
+              <mat-icon class="prod__star" aria-label="Destacado">star</mat-icon>
+            }
+          </div>
+          <span class="prod__name-slug">/{{ p.slug }}</span>
+        </div>
+      </ng-template>
+
+      <ng-template appDataTableCell="categories" let-p>
+        <div class="prod__cats">
+          @for (c of p.categories.slice(0, 2); track c.id) {
+            <span class="chip">{{ c.name }}</span>
+          }
+          @if (p.categories.length > 2) {
+            <span class="chip chip--more">+{{ p.categories.length - 2 }}</span>
+          }
+          @if (p.categories.length === 0) {
+            <span class="prod__muted">—</span>
+          }
+        </div>
+      </ng-template>
+
+      <ng-template appDataTableCell="status" let-p>
+        <span class="badge" [class]="'badge--' + p.status">{{ statusLabel(p.status) }}</span>
+      </ng-template>
+
+      <ng-template appDataTableCell="actions" let-p>
+        <button mat-icon-button [matMenuTriggerFor]="productMenu" [matMenuTriggerData]="{ p: p }" aria-label="Acciones del producto">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+      </ng-template>
+    </app-data-table>
+  </mat-card>
+</section>
+
+<mat-menu #productMenu="matMenu">
+  <ng-template matMenuContent let-p="p">
+    <button mat-menu-item (click)="edit(p)">
+      <mat-icon>edit</mat-icon>
+      Editar
+    </button>
+    <button mat-menu-item (click)="duplicate(p)">
+      <mat-icon>content_copy</mat-icon>
+      Duplicar
+    </button>
+    <mat-divider />
+    <button mat-menu-item class="menu-item--danger" (click)="remove(p)">
+      <mat-icon>delete</mat-icon>
+      Eliminar
+    </button>
+  </ng-template>
+</mat-menu>

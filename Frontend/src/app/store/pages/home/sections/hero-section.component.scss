@@ -1,0 +1,185 @@
+:host {
+  display: block;
+}
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  /* Fallback cálido cuando no hay imagen. */
+  background: linear-gradient(160deg, #3a2a22 0%, #5a3f33 45%, #2b1d18 100%);
+}
+
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  /* Animación sutil tipo Ken Burns. */
+  animation: hero-zoom 18s ease-out forwards;
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  /* Tinte cálido sepia para legibilidad y carácter de marca. */
+  background:
+    linear-gradient(180deg, rgb(36 26 22 / 55%) 0%, rgb(43 29 24 / 35%) 40%, rgb(36 26 22 / 78%) 100%),
+    radial-gradient(120% 80% at 50% 35%, rgb(120 70 50 / 28%), transparent 70%);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  padding: 0 22px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 12%);
+  border: 1px solid rgb(255 255 255 / 22%);
+  backdrop-filter: blur(6px);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.hero__badge svg {
+  width: 15px;
+  height: 15px;
+  color: var(--st-taupe);
+}
+
+.hero__brand {
+  margin: 4px 0 0;
+  font-family: var(--st-font-display);
+  font-weight: 700;
+  font-size: clamp(3.4rem, 13vw, 7rem);
+  line-height: 0.95;
+  letter-spacing: 0.02em;
+  text-shadow: 0 18px 50px rgb(0 0 0 / 35%);
+}
+
+.hero__tagline {
+  margin: 0;
+  max-width: 30ch;
+  font-size: clamp(1rem, 2.6vw, 1.3rem);
+  color: rgb(255 255 255 / 88%);
+  line-height: 1.5;
+}
+
+.hero__actions {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.hbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 15px 30px;
+  border-radius: 999px;
+  font-size: 0.96rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, gap 0.3s ease;
+}
+.hbtn svg {
+  width: 18px;
+  height: 18px;
+}
+.hbtn--cream {
+  background: var(--st-cream);
+  color: var(--st-espresso);
+  box-shadow: 0 14px 40px -16px rgb(0 0 0 / 55%);
+}
+.hbtn--cream:hover {
+  background: #fff;
+  transform: translateY(-2px);
+  gap: 13px;
+}
+.hbtn--ghost {
+  background: rgb(255 255 255 / 8%);
+  color: #fff;
+  border: 1px solid rgb(255 255 255 / 45%);
+}
+.hbtn--ghost:hover {
+  background: rgb(255 255 255 / 16%);
+  transform: translateY(-2px);
+}
+
+.hero__scroll {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+.hero__mouse {
+  display: block;
+  width: 26px;
+  height: 42px;
+  border: 2px solid rgb(255 255 255 / 65%);
+  border-radius: 14px;
+  position: relative;
+}
+.hero__wheel {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 4px;
+  height: 8px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: #fff;
+  animation: hero-wheel 1.6s ease-in-out infinite;
+}
+
+/* Animaciones de entrada (solo si el usuario no pide menos movimiento). */
+@media (prefers-reduced-motion: no-preference) {
+  .hero__badge,
+  .hero__brand,
+  .hero__tagline,
+  .hero__actions {
+    opacity: 0;
+    animation: hero-in 0.9s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  }
+  .hero__badge { animation-delay: 0.1s; }
+  .hero__brand { animation-delay: 0.25s; }
+  .hero__tagline { animation-delay: 0.42s; }
+  .hero__actions { animation-delay: 0.58s; }
+  .hero__scroll {
+    opacity: 0;
+    animation: hero-in 0.9s ease forwards;
+    animation-delay: 0.9s;
+  }
+}
+
+@keyframes hero-in {
+  from { opacity: 0; transform: translateY(26px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-zoom {
+  from { transform: scale(1.12); }
+  to { transform: scale(1); }
+}
+@keyframes hero-wheel {
+  0% { opacity: 0; transform: translateY(0); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(12px); }
+}

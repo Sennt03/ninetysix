@@ -1,0 +1,65 @@
+<div class="layout">
+  <header class="layout__topbar">
+    <button
+      mat-icon-button
+      class="layout__menu-btn"
+      (click)="toggle()"
+      aria-label="Menú"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <span class="layout__logo"><mat-icon>hub</mat-icon></span>
+    <span class="layout__brand-text">Ninetysix</span>
+
+    <span class="layout__spacer"></span>
+
+    <button mat-button class="layout__user" [matMenuTriggerFor]="menu">
+      <mat-icon class="layout__user-icon">account_circle</mat-icon>
+      <span class="layout__username">{{ user()?.username }}</span>
+      <mat-icon class="layout__chev">expand_more</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <a mat-menu-item routerLink="/panel/profile">
+        <mat-icon>person</mat-icon>
+        <span>Mi perfil</span>
+      </a>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        <span>Cerrar sesión</span>
+      </button>
+    </mat-menu>
+  </header>
+
+  <mat-sidenav-container class="layout__body">
+    <mat-sidenav
+      class="layout__sidenav"
+      [mode]="isHandset() ? 'over' : 'side'"
+      [opened]="opened()"
+      (openedChange)="opened.set($event)"
+    >
+      <mat-nav-list class="layout__nav">
+        @for (item of navItems; track item.link) {
+          @if (!item.adminOnly || isAdmin()) {
+            <a
+              mat-list-item
+              [routerLink]="item.link"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: item.exact }"
+              (click)="closeIfHandset()"
+            >
+              <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+              <span matListItemTitle>{{ item.label }}</span>
+            </a>
+          }
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="layout__content">
+      <main class="layout__main">
+        <router-outlet />
+      </main>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

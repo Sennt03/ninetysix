@@ -1,0 +1,58 @@
+<div class="auth">
+  <mat-card class="auth__card" appearance="outlined">
+    @if (loading()) {
+      <mat-progress-bar mode="indeterminate" class="auth__progress" />
+    }
+
+    <header class="auth__head">
+      <span class="auth__logo"><mat-icon>hub</mat-icon></span>
+      <h1 class="auth__brand">Ninetysix</h1>
+      <p class="auth__subtitle">Inicia sesión para acceder a tu panel</p>
+    </header>
+
+    <form class="auth__form" [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="email" autocomplete="email" />
+        <mat-icon matSuffix>mail</mat-icon>
+        @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+          <mat-error>El email es obligatorio</mat-error>
+        }
+        @if (form.controls.email.hasError('email')) {
+          <mat-error>Email no válido</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contraseña</mat-label>
+        <input
+          matInput
+          [type]="hidePassword() ? 'password' : 'text'"
+          formControlName="password"
+          autocomplete="current-password"
+        />
+        <button
+          type="button"
+          mat-icon-button
+          matSuffix
+          (click)="hidePassword.set(!hidePassword())"
+          [attr.aria-label]="hidePassword() ? 'Mostrar contraseña' : 'Ocultar contraseña'"
+        >
+          <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+          <mat-error>La contraseña es obligatoria</mat-error>
+        }
+        @if (form.controls.password.hasError('minlength')) {
+          <mat-error>Mínimo 8 caracteres</mat-error>
+        }
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" class="auth__submit" [disabled]="loading()">
+        Entrar
+      </button>
+    </form>
+
+    <p class="auth__hint">El acceso es solo para usuarios autorizados.</p>
+  </mat-card>
+</div>

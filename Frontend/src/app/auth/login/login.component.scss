@@ -1,0 +1,89 @@
+.auth {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background:
+    radial-gradient(60% 55% at 18% 12%, rgb(24 24 27 / 6%) 0%, transparent 60%),
+    radial-gradient(55% 50% at 88% 92%, rgb(24 24 27 / 8%) 0%, transparent 55%),
+    var(--brand-bg);
+}
+
+.auth__card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 2.75rem 2.5rem 2.25rem;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.auth__progress {
+  position: absolute;
+  inset: 0 0 auto;
+}
+
+.auth__head {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.auth__logo {
+  display: inline-grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(140deg, var(--brand-slate-800) 0%, var(--brand-emerald-dark) 100%);
+  box-shadow: 0 8px 20px -8px rgb(24 24 27 / 35%);
+  margin-bottom: 1rem;
+}
+
+.auth__logo mat-icon {
+  color: #fff;
+  font-size: 1.9rem;
+  width: 1.9rem;
+  height: 1.9rem;
+}
+
+.auth__brand {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--brand-slate-900);
+}
+
+.auth__subtitle {
+  margin: 0.4rem 0 0;
+  color: var(--brand-slate-500);
+  font-size: 0.95rem;
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.auth__submit {
+  margin-top: 0.75rem;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.auth__hint,
+.auth__foot {
+  margin: 1.5rem 0 0;
+  text-align: center;
+  color: var(--brand-slate-400);
+  font-size: 0.85rem;
+}
+
+.auth__foot {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: center;
+  color: var(--brand-slate-500);
+}

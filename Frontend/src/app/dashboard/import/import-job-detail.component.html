@@ -1,0 +1,113 @@
+<section class="job">
+  <header class="job__header">
+    <app-breadcrumb [items]="crumbs()" />
+  </header>
+
+  @if (job(); as j) {
+    <mat-card appearance="outlined" class="job__card">
+      <div class="job__top">
+        <div>
+          <h1 class="job__title">{{ j.originalName }}</h1>
+          <p class="job__sub">
+            {{ j.type === 'products' ? 'Productos' : j.type === 'categories' ? 'Categorías' : 'Imágenes' }}
+            · {{ j.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+          </p>
+        </div>
+        @if (j.errorCount > 0) {
+          <button mat-stroked-button (click)="downloadErrors()">
+            <mat-icon>download</mat-icon> Descargar fallidas
+          </button>
+        }
+      </div>
+
+      @if (!done()) {
+        <div class="job__progress">
+          <mat-progress-bar
+            [mode]="j.totalRows ? 'determinate' : 'indeterminate'"
+            [value]="progress()"
+          />
+          <span class="job__pct">{{ j.processedRows }} / {{ j.totalRows }} ({{ progress() }}%)</span>
+        </div>
+      }
+
+      <div class="job__stats">
+        <div class="stat">
+          <span class="stat__num">{{ j.successCount }}</span>
+          <span class="stat__lbl">Correctos</span>
+        </div>
+        <div class="stat stat--ok">
+          <span class="stat__num">{{ j.createdCount }}</span>
+          <span class="stat__lbl">Creados</span>
+        </div>
+        <div class="stat stat--up">
+          <span class="stat__num">{{ j.updatedCount }}</span>
+          <span class="stat__lbl">Actualizados</span>
+        </div>
+        <div class="stat" [class.stat--err]="j.errorCount > 0">
+          <span class="stat__num">{{ j.errorCount }}</span>
+          <span class="stat__lbl">Errores</span>
+        </div>
+      </div>
+
+      @if (j.status === 'failed') {
+        <p class="job__failed">
+          <mat-icon>error</mat-icon> El proceso falló: {{ j.message }}
+        </p>
+      }
+    </mat-card>
+
+    @if (done()) {
+      <mat-card appearance="outlined" class="job__card">
+        <div class="job__rowsbar">
+          <h2 class="job__h2">Incidencias</h2>
+          <span class="job__spacer"></span>
+          @for (opt of statusOptions; track opt.value) {
+            <button
+              mat-stroked-button
+              type="button"
+              [class.job__chip--on]="statusFilter() === opt.value"
+              (click)="setStatus(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+
+        <app-data-table
+          [columns]="rowColumns"
+          [data]="rows()"
+          [total]="rowsTotal()"
+          [pageIndex]="pageIndex()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[25, 50, 100]"
+          [loading]="rowsLoading()"
+          emptyMessage="Sin incidencias para este filtro."
+          (page)="onPage($event)"
+        >
+          <ng-template appDataTableCell="identifier" let-row>
+            <code>{{ row.identifier || '—' }}</code>
+            @if (row.rowNumber) {
+              <span class="job__rownum">fila {{ row.rowNumber }}</span>
+            }
+          </ng-template>
+
+          <ng-template appDataTableCell="status" let-row>
+            <span class="badge" [class.b-ok]="row.status === 'ok'" [class.b-err]="row.status === 'error'">
+              {{ row.status === 'ok' ? 'OK' : row.status === 'error' ? 'Error' : 'Omitida' }}
+            </span>
+          </ng-template>
+
+          <ng-template appDataTableCell="action" let-row>
+            {{ row.action === 'created' ? 'Creado' : row.action === 'updated' ? 'Actualizado' : '—' }}
+          </ng-template>
+
+          <ng-template appDataTableCell="message" let-row>
+            <span class="job__msg">{{ row.message || '—' }}</span>
+          </ng-template>
+        </app-data-table>
+      </mat-card>
+    }
+  } @else {
+    <mat-progress-bar mode="indeterminate" />
+  }
+</section>

@@ -1,0 +1,10 @@
+import { CategoryStatus, ProductStatus, StockPolicy } from '@prisma/client';
+export declare function normalize(text: string): string;
+export declare function parseBool(value: string | undefined): boolean | undefined;
+export declare function parseDecimal(value: string | undefined, field: string): number | undefined;
+export declare function parseIntField(value: string | undefined, field: string): number | undefined;
+export declare function parseProductStatus(value: string | undefined): ProductStatus | undefined;
+export declare function parseCategoryStatus(value: string | undefined): CategoryStatus | undefined;
+export declare function parseStockPolicy(value: string | undefined): StockPolicy | undefined;
+export declare function parseColor(value: string | undefined): string | undefined;
+export declare function splitList(value: string | undefined): string[];

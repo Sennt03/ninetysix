@@ -1,0 +1,94 @@
+:host {
+  display: block;
+}
+
+.plp {
+  max-width: 1200px;
+  margin: 0 auto;
+  /* Cabecera fija sólida: deja aire arriba. */
+  padding: clamp(92px, 13vh, 130px) clamp(16px, 5vw, 40px) clamp(48px, 7vw, 90px);
+}
+
+.plp__head {
+  margin-bottom: clamp(24px, 4vw, 40px);
+}
+.plp__crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  color: var(--st-muted);
+  margin-bottom: 10px;
+}
+.plp__crumbs a {
+  color: var(--st-rose-deep);
+  text-decoration: none;
+}
+.plp__crumbs a:hover {
+  text-decoration: underline;
+}
+.plp__title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 700;
+  color: var(--st-espresso);
+  letter-spacing: -0.01em;
+}
+.plp__count {
+  margin: 6px 0 0;
+  color: var(--st-muted);
+}
+
+.plp__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(14px, 2.4vw, 26px);
+}
+@media (min-width: 760px) {
+  .plp__grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1040px) {
+  .plp__grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.plp__empty,
+.plp__notfound {
+  text-align: center;
+  color: var(--st-muted);
+  padding: 40px 0;
+}
+.plp__notfound h1 {
+  font-family: var(--st-font-display);
+  color: var(--st-espresso);
+  margin: 0 0 8px;
+}
+.plp__back {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: var(--st-espresso);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+.plp__back:hover { background: var(--st-ink); }
+
+/* Skeletons de carga */
+.plp__sk {
+  display: block;
+  border-radius: var(--st-radius);
+  background: linear-gradient(100deg, var(--st-sand) 30%, var(--st-cream) 50%, var(--st-sand) 70%);
+  background-size: 200% 100%;
+  animation: sk 1.3s ease-in-out infinite;
+}
+.plp__sk--title { width: 220px; height: 34px; margin-bottom: 24px; }
+.plp__sk--card { aspect-ratio: 3 / 4; }
+@keyframes sk {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .plp__sk { animation: none; }
+}

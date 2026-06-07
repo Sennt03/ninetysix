@@ -1,0 +1,119 @@
+<h2 mat-dialog-title>{{ isEdit ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+
+<mat-dialog-content>
+  @if (saving()) {
+    <mat-progress-bar mode="indeterminate" class="form__progress" />
+  }
+
+  <form class="form" [formGroup]="form">
+    <mat-form-field appearance="outline">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="name" />
+      @if (form.controls.name.hasError('required')) {
+        <mat-error>El nombre es obligatorio</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Slug</mat-label>
+      <input matInput formControlName="slug" (input)="onSlugInput()" />
+      <button
+        type="button"
+        mat-icon-button
+        matSuffix
+        (click)="toggleSlugLock()"
+        [matTooltip]="slugLocked() ? 'Bloqueado (edición manual)' : 'Automático desde el nombre'"
+        [attr.aria-label]="slugLocked() ? 'Desbloquear slug' : 'Bloquear slug'"
+      >
+        <mat-icon>{{ slugLocked() ? 'lock' : 'lock_open' }}</mat-icon>
+      </button>
+      @if (form.controls.slug.hasError('required')) {
+        <mat-error>El slug es obligatorio</mat-error>
+      }
+      @if (form.controls.slug.hasError('pattern')) {
+        <mat-error>Solo minúsculas, números y guiones</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Categoría padre</mat-label>
+      <mat-select formControlName="parentId">
+        <mat-option [value]="null">— Raíz (sin padre) —</mat-option>
+        @for (opt of parentOptions; track opt.id) {
+          <mat-option [value]="opt.id">{{ opt.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput rows="3" formControlName="description"></textarea>
+    </mat-form-field>
+
+    <div class="form__image">
+      <span class="form__image-label">Imagen de la categoría</span>
+      <div class="form__image-row">
+        <div class="form__image-preview" [class.form__image-preview--empty]="!selectedAsset()">
+          @if (selectedAsset(); as a) {
+            <img [src]="a.url" alt="Imagen de la categoría" />
+          } @else {
+            <mat-icon>image</mat-icon>
+          }
+        </div>
+        <div class="form__image-actions">
+          <button mat-stroked-button type="button" (click)="catImgInput.click()" [disabled]="uploadingImage()">
+            <mat-icon>upload</mat-icon> Subir
+          </button>
+          <button mat-stroked-button type="button" (click)="openLibrary()">
+            <mat-icon>photo_library</mat-icon> Biblioteca
+          </button>
+          @if (selectedAsset()) {
+            <button mat-button type="button" class="menu-item--danger" (click)="removeImage()">
+              <mat-icon>delete</mat-icon> Quitar
+            </button>
+          }
+          <input
+            #catImgInput
+            type="file"
+            hidden
+            accept="image/jpeg,image/png,image/webp,image/gif"
+            (change)="onImageSelected(catImgInput)"
+          />
+        </div>
+      </div>
+      @if (uploadingImage()) {
+        <mat-progress-bar mode="indeterminate" />
+      }
+    </div>
+
+    @if (selectedAsset()) {
+      <mat-form-field appearance="outline">
+        <mat-label>Texto alternativo (alt)</mat-label>
+        <input matInput formControlName="imageAlt" />
+        @if (form.controls.imageAlt.hasError('required')) {
+          <mat-error>Requerido si hay imagen</mat-error>
+        }
+      </mat-form-field>
+    }
+
+    <mat-slide-toggle formControlName="active" class="form__toggle">Categoría activa</mat-slide-toggle>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Meta título</mat-label>
+      <input matInput formControlName="metaTitle" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Meta descripción</mat-label>
+      <textarea matInput rows="2" formControlName="metaDescription"></textarea>
+      <mat-hint align="end">{{ form.controls.metaDescription.value.length }}/500</mat-hint>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close [disabled]="saving()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="save()" [disabled]="saving()">
+    {{ isEdit ? 'Guardar' : 'Crear' }}
+  </button>
+</mat-dialog-actions>

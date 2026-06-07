@@ -1,0 +1,94 @@
+<section class="hist">
+  <header class="hist__header">
+    <div class="hist__heading">
+      <app-breadcrumb [items]="crumbs" />
+      <h1 class="hist__title">Historial de cargas masivas</h1>
+    </div>
+  </header>
+
+  <mat-card appearance="outlined" class="hist__card">
+    <div class="hist__toolbar">
+      <div class="hist__filters">
+        @for (opt of typeOptions; track opt.value) {
+          <button
+            mat-stroked-button
+            type="button"
+            [class.hist__chip--on]="typeFilter() === opt.value"
+            (click)="setType(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        }
+      </div>
+      <span class="hist__spacer"></span>
+      <mat-form-field appearance="outline" class="hist__search" subscriptSizing="dynamic">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchCtrl" placeholder="Buscar por archivo" />
+      </mat-form-field>
+    </div>
+
+    <app-data-table
+      [columns]="columns"
+      [data]="jobs()"
+      [total]="total()"
+      [pageIndex]="pageIndex()"
+      [pageSize]="pageSize()"
+      [pageSizeOptions]="[10, 25, 50]"
+      [loading]="loading()"
+      emptyMessage="No hay cargas registradas."
+      (page)="onPage($event)"
+    >
+      <ng-template appDataTableCell="createdAt" let-job>
+        {{ job.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+      </ng-template>
+
+      <ng-template appDataTableCell="type" let-job>
+        {{ typeLabel(job.type) }}
+      </ng-template>
+
+      <ng-template appDataTableCell="status" let-job>
+        <span class="badge" [class]="statusMeta(job.status).cls">
+          {{ statusMeta(job.status).label }}
+        </span>
+      </ng-template>
+
+      <ng-template appDataTableCell="processed" let-job>
+        @if (job.status === 'processing' || job.status === 'pending') {
+          <span class="proc">{{ job.processedRows }} / {{ job.totalRows }}</span>
+        } @else {
+          <span class="proc">{{ job.processedRows }}</span>
+        }
+      </ng-template>
+
+      <ng-template appDataTableCell="details" let-job>
+        <span class="det det--ok">+{{ job.createdCount }} nuevos</span>
+        <span class="det det--up">~{{ job.updatedCount }} actualizados</span>
+      </ng-template>
+
+      <ng-template appDataTableCell="incidencias" let-job>
+        @if (job.errorCount > 0) {
+          <button class="errlink" (click)="openIncidencias(job)">{{ job.errorCount }}</button>
+        } @else {
+          <span class="proc">0</span>
+        }
+      </ng-template>
+
+      <ng-template appDataTableCell="actions" let-job>
+        <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Acciones">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="openJob(job)">
+            <mat-icon>visibility</mat-icon><span>Ver detalle</span>
+          </button>
+          <button mat-menu-item (click)="openIncidencias(job)" [disabled]="job.errorCount === 0">
+            <mat-icon>report</mat-icon><span>Ver incidencias</span>
+          </button>
+          <button mat-menu-item (click)="downloadErrors(job)" [disabled]="job.errorCount === 0">
+            <mat-icon>download</mat-icon><span>Descargar fallidas</span>
+          </button>
+        </mat-menu>
+      </ng-template>
+    </app-data-table>
+  </mat-card>
+</section>

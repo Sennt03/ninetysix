@@ -1,0 +1,158 @@
+@use '@angular/material' as mat;
+
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        theme-type: light,
+        primary: mat.$green-palette,
+        tertiary: mat.$azure-palette,
+      ),
+      typography: Inter,
+      density: 0,
+    )
+  );
+
+  /* ===========================================================
+     Marca Ninetysix · profesional monocromo (modo claro)
+     Paleta: neutros (negro / blancos / grises) + verde solo para estado
+     =========================================================== */
+  --brand-slate-900: #18181b;
+  --brand-slate-800: #27272a;
+  --brand-slate-700: #3f3f46;
+  --brand-slate-500: #71717a;
+  --brand-slate-400: #a1a1aa;
+  --brand-slate-200: #e4e4e7;
+  --brand-slate-100: #f4f4f5;
+  --brand-slate-50: #fafafa;
+
+  /* Acento de marca: negro (los nombres "emerald" se conservan para
+     propagar el color a todos los componentes sin tocarlos uno a uno). */
+  --brand-emerald: #18181b;
+  --brand-emerald-dark: #000000;
+  --brand-emerald-soft: #f4f4f5;
+  --brand-emerald-ink: #18181b;
+
+  /* Verde semántico solo para badges de estado "activo / publicado". */
+  --brand-success: #16a34a;
+  --brand-success-soft: #dcfce7;
+  --brand-success-ink: #15803d;
+
+  --brand-bg: #fafafa;
+  --brand-surface: #ffffff;
+  --brand-shadow: 0 1px 2px rgb(24 24 27 / 5%), 0 10px 28px -16px rgb(24 24 27 / 18%);
+  --brand-shadow-sm: 0 1px 2px rgb(24 24 27 / 7%);
+  --brand-radius: 14px;
+
+  /* --- Override de tokens del sistema Material (M3) --- */
+  --mat-sys-primary: var(--brand-emerald);
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-primary-container: var(--brand-emerald-soft);
+  --mat-sys-on-primary-container: var(--brand-emerald-ink);
+
+  --mat-sys-background: var(--brand-bg);
+  --mat-sys-surface: var(--brand-surface);
+  --mat-sys-surface-container-lowest: #ffffff;
+  --mat-sys-surface-container-low: #ffffff;
+  --mat-sys-surface-container: var(--brand-slate-50);
+  --mat-sys-surface-container-high: var(--brand-slate-100);
+  --mat-sys-surface-container-highest: var(--brand-slate-100);
+
+  --mat-sys-on-surface: var(--brand-slate-900);
+  --mat-sys-on-surface-variant: var(--brand-slate-500);
+
+  --mat-sys-outline: var(--brand-slate-200);
+  --mat-sys-outline-variant: var(--brand-slate-200);
+
+  --mat-sys-secondary-container: var(--brand-emerald-soft);
+  --mat-sys-on-secondary-container: var(--brand-emerald-ink);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, 'Helvetica Neue', sans-serif;
+  background: var(--brand-bg);
+  color: var(--brand-slate-900);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tarjetas con esquinas suaves y sombra sutil en toda la app */
+.mat-mdc-card.mat-mdc-card-outlined {
+  border-radius: var(--brand-radius);
+  border-color: var(--brand-slate-200);
+  box-shadow: var(--brand-shadow);
+}
+
+/* Botón principal con un poco más de presencia */
+.mat-mdc-unelevated-button.mat-primary {
+  --mdc-filled-button-container-shape: 10px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* ===========================================================
+   Tienda pública (storefront) — utilidades globales
+   =========================================================== */
+
+/* Reset de box-sizing acotado a la tienda: sin él, `height: 100%` + padding
+   (p. ej. las tarjetas de "Nuestros Clientes") desbordan su celda del grid y
+   se montan sobre la siguiente. Se limita a la tienda para no alterar el panel. */
+app-store-layout,
+app-store-layout *,
+app-store-layout *::before,
+app-store-layout *::after {
+  box-sizing: border-box;
+}
+
+/* Desplazamiento suave para los enlaces de ancla del hero/CTA. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Aparición al hacer scroll (la directiva appReveal añade estas clases en cliente).
+   El estado por defecto (sin clases) es visible → SSR/no-JS muestran el contenido. */
+.reveal-init {
+  opacity: 0;
+  transform: translateY(26px);
+  will-change: opacity, transform;
+}
+.reveal-in {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal-init {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Variantes de snackbar (NotificationService) */
+.success-snackbar {
+  --mdc-snackbar-container-color: #059669;
+  --mdc-snackbar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}
+.error-snackbar {
+  --mdc-snackbar-container-color: #dc2626;
+  --mdc-snackbar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}
+.info-snackbar {
+  --mdc-snackbar-container-color: #18181b;
+  --mdc-snackbar-supporting-text-color: #fff;
+  --mat-snack-bar-button-color: #fff;
+}

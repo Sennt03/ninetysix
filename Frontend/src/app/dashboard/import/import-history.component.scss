@@ -1,0 +1,122 @@
+.hist {
+  display: block;
+
+  &__header {
+    margin-bottom: 20px;
+  }
+
+  &__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--brand-slate-500);
+    text-decoration: none;
+    font-size: 13px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover {
+      color: var(--brand-slate-800);
+    }
+  }
+
+  &__title {
+    margin: 4px 0 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  &__card {
+    padding: 16px;
+  }
+
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+
+  &__filters {
+    display: flex;
+    gap: 4px;
+
+    button {
+      min-width: 0;
+    }
+  }
+
+  &__chip--on {
+    background: var(--brand-slate-900);
+    color: #fff;
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  &__search {
+    flex: 0 1 240px;
+  }
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.b-ok {
+  background: color-mix(in srgb, var(--brand-success) 14%, transparent);
+  color: var(--brand-success);
+}
+.b-warn {
+  background: color-mix(in srgb, #d97706 16%, transparent);
+  color: #b45309;
+}
+.b-err {
+  background: color-mix(in srgb, var(--brand-danger, #dc2626) 14%, transparent);
+  color: var(--brand-danger, #dc2626);
+}
+.b-proc {
+  background: color-mix(in srgb, #2563eb 14%, transparent);
+  color: #1d4ed8;
+}
+.b-wait {
+  background: var(--brand-slate-100);
+  color: var(--brand-slate-500);
+}
+
+.proc {
+  color: var(--brand-slate-600);
+  font-variant-numeric: tabular-nums;
+}
+
+.det {
+  display: inline-block;
+  font-size: 12px;
+  margin-right: 8px;
+
+  &--ok {
+    color: var(--brand-success);
+  }
+  &--up {
+    color: var(--brand-slate-500);
+  }
+}
+
+.errlink {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--brand-danger, #dc2626);
+  text-decoration: underline;
+}

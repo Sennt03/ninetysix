@@ -1,0 +1,142 @@
+:host {
+  display: block;
+}
+
+.rd {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(48px, 7vw, 90px) clamp(16px, 5vw, 40px);
+}
+.rd__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(16px, 2.4vw, 24px);
+}
+
+.sc {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: clamp(22px, 3vw, 30px);
+  border-radius: var(--st-radius-lg);
+  background: var(--st-white);
+  border: 1px solid var(--st-line);
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 2px rgb(43 29 24 / 5%);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.sc:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--st-shadow);
+}
+/* Tintes sutiles por red en la esquina superior. */
+.sc[data-net='instagram'] { background: radial-gradient(120% 120% at 100% 0%, rgb(214 41 118 / 9%), var(--st-white) 55%); }
+.sc[data-net='tiktok'] { background: radial-gradient(120% 120% at 100% 0%, rgb(0 0 0 / 7%), var(--st-white) 55%); }
+.sc[data-net='facebook'] { background: radial-gradient(120% 120% at 100% 0%, rgb(24 119 242 / 9%), var(--st-white) 55%); }
+.sc[data-net='whatsapp'] { background: radial-gradient(120% 120% at 100% 0%, rgb(37 211 102 / 11%), var(--st-white) 55%); }
+
+.sc__top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.sc__tile {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 18px;
+  color: #fff;
+  flex: none;
+  box-shadow: 0 10px 24px -12px rgb(43 29 24 / 50%);
+}
+.sc__tile svg { width: 30px; height: 30px; }
+.sc[data-net='instagram'] .sc__tile { background: linear-gradient(45deg, #f9ce34, #ee2a7b 45%, #6228d7); }
+.sc[data-net='tiktok'] .sc__tile { background: #111; }
+.sc[data-net='facebook'] .sc__tile { background: #1877f2; }
+.sc[data-net='whatsapp'] .sc__tile { background: #25d366; }
+
+.sc__id { display: flex; flex-direction: column; gap: 2px; }
+.sc__name {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--st-espresso);
+}
+.sc__handle { color: var(--st-muted); font-size: 0.92rem; }
+.sc__badge {
+  align-self: flex-start;
+  margin-top: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--st-cream);
+  color: var(--st-rose-deep);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.sc__desc {
+  margin: 0;
+  color: var(--st-ink);
+  line-height: 1.55;
+}
+.sc__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--st-rose-deep);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: gap 0.3s ease;
+}
+.sc:hover .sc__cta { gap: 12px; }
+
+/* ---------------- Etiquétanos ---------------- */
+.tag {
+  margin-top: clamp(24px, 4vw, 40px);
+  padding: clamp(34px, 5vw, 56px) clamp(20px, 4vw, 40px);
+  border-radius: var(--st-radius-lg);
+  background: linear-gradient(180deg, #efe4dc, #e7d8ce);
+  border: 1px solid var(--st-line);
+  text-align: center;
+}
+.tag__title {
+  margin: 0;
+  font-family: var(--st-font-display);
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+  font-weight: 700;
+  color: var(--st-espresso);
+}
+.tag__sub {
+  margin: 10px auto 0;
+  max-width: 46ch;
+  color: var(--st-muted);
+}
+.tag__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 24px 0 16px;
+}
+.tag__chip {
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--st-white);
+  border: 1px solid var(--st-line);
+  color: var(--st-espresso);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.tag__hint {
+  margin: 0;
+  color: var(--st-muted);
+  font-size: 0.88rem;
+}
+
+@media (min-width: 760px) {
+  .rd__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

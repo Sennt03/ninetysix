@@ -1,0 +1,379 @@
+<section class="pf">
+  <header class="pf__header">
+    <div class="pf__heading">
+      <button mat-icon-button (click)="cancel()" aria-label="Volver">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div>
+        <p class="pf__crumb">Productos</p>
+        <h1 class="pf__title">{{ isEdit() ? 'Editar producto' : 'Nuevo producto' }}</h1>
+      </div>
+    </div>
+    <div class="pf__actions">
+      <button mat-stroked-button (click)="cancel()" [disabled]="saving()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="save()" [disabled]="saving() || loading()">
+        {{ isEdit() ? 'Guardar cambios' : 'Crear producto' }}
+      </button>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" class="pf__progress" />
+  }
+
+  <div class="pf__grid">
+    <!-- ===================== Columna principal ===================== -->
+    <div class="pf__col">
+      <section class="pf__card">
+        <h2 class="pf__card-title">Detalles del producto</h2>
+
+        <form class="pf__form" [formGroup]="generalForm">
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Nombre del producto</mat-label>
+            <input matInput formControlName="name" placeholder="Título del producto" />
+            @if (generalForm.controls.name.hasError('required')) {
+              <mat-error>El nombre es obligatorio</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Slug</mat-label>
+            <input matInput formControlName="slug" (input)="onSlugInput()" />
+            <button
+              type="button"
+              mat-icon-button
+              matSuffix
+              (click)="slugLocked.set(!slugLocked())"
+              [matTooltip]="slugLocked() ? 'Bloqueado' : 'Automático desde el nombre'"
+              aria-label="Bloquear slug"
+            >
+              <mat-icon>{{ slugLocked() ? 'lock' : 'lock_open' }}</mat-icon>
+            </button>
+            @if (generalForm.controls.slug.hasError('pattern')) {
+              <mat-error>Solo minúsculas, números y guiones</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Descripción corta</mat-label>
+            <textarea matInput rows="2" formControlName="shortDescription"></textarea>
+            <mat-hint align="end">{{ generalForm.controls.shortDescription.value.length }}/500</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Descripción del producto</mat-label>
+            <textarea matInput rows="6" formControlName="description"></textarea>
+          </mat-form-field>
+        </form>
+      </section>
+
+      <section class="pf__card">
+        <div class="pf__card-head">
+          <h2 class="pf__card-title">Imágenes</h2>
+          <div class="pf__img-actions">
+            <button mat-stroked-button type="button" (click)="imgInput.click()" [disabled]="uploadingImages() || images().length >= maxImages">
+              <mat-icon>upload</mat-icon> Subir
+            </button>
+            <button mat-stroked-button type="button" (click)="openLibrary()" [disabled]="images().length >= maxImages">
+              <mat-icon>photo_library</mat-icon> Biblioteca
+            </button>
+            <input
+              #imgInput
+              type="file"
+              hidden
+              multiple
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              (change)="onImagesSelected(imgInput)"
+            />
+          </div>
+        </div>
+
+        @if (uploadingImages()) {
+          <mat-progress-bar mode="indeterminate" />
+        }
+
+        @if (images().length === 0) {
+          <p class="pf__img-empty">Sin imágenes. Sube nuevas o elige de la biblioteca. La primera será la portada.</p>
+        } @else {
+          <p class="pf__img-hint">{{ images().length }}/{{ maxImages }} · la primera imagen es la portada.</p>
+          <div class="pf__img-grid">
+            @for (img of images(); track img.assetId; let i = $index) {
+              <div class="imgcard" [class.imgcard--cover]="i === 0">
+                <div class="imgcard__thumb">
+                  <img [src]="img.thumbnailUrl ?? img.url" [alt]="img.altText || 'imagen del producto'" />
+                  @if (i === 0) {
+                    <span class="imgcard__cover-badge">Portada</span>
+                  }
+                  <button
+                    type="button"
+                    class="imgcard__remove"
+                    (click)="removeImage(img.assetId)"
+                    matTooltip="Quitar"
+                    aria-label="Quitar imagen"
+                  >
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+
+                <input
+                  class="imgcard__alt"
+                  [value]="img.altText"
+                  placeholder="Texto alternativo"
+                  (input)="setImageAlt(img.assetId, $any($event.target).value)"
+                  aria-label="Texto alternativo de la imagen"
+                />
+
+                <div class="imgcard__tools">
+                  <button type="button" mat-icon-button (click)="moveImage(img.assetId, -1)" [disabled]="i === 0" matTooltip="Mover antes" aria-label="Mover antes">
+                    <mat-icon>arrow_back</mat-icon>
+                  </button>
+                  <button type="button" mat-icon-button (click)="moveImage(img.assetId, 1)" [disabled]="i === images().length - 1" matTooltip="Mover después" aria-label="Mover después">
+                    <mat-icon>arrow_forward</mat-icon>
+                  </button>
+                  <button type="button" mat-icon-button (click)="makeCover(img.assetId)" [disabled]="i === 0" matTooltip="Marcar como portada" aria-label="Marcar como portada">
+                    <mat-icon>star</mat-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="pf__card">
+        <div class="pf__card-head">
+          <h2 class="pf__card-title">Precios y variantes</h2>
+          <mat-slide-toggle
+            [checked]="hasVariants()"
+            (change)="toggleVariants($event.checked)"
+          >
+            Tiene variantes
+          </mat-slide-toggle>
+        </div>
+
+        @if (!hasVariants()) {
+          <form class="pf__simple" [formGroup]="simpleForm">
+            <mat-form-field appearance="outline">
+              <mat-label>Precio</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="price" />
+              <span matTextPrefix>$&nbsp;</span>
+              @if (simpleForm.controls.price.hasError('required')) {
+                <mat-error>El precio es obligatorio</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Precio comparado</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="comparePrice" />
+              <span matTextPrefix>$&nbsp;</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Precio de costo</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="costPrice" />
+              <span matTextPrefix>$&nbsp;</span>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>SKU</mat-label>
+              <input matInput formControlName="sku" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Stock</mat-label>
+              <input matInput type="number" min="0" formControlName="stock" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Política de stock</mat-label>
+              <mat-select formControlName="stockPolicy">
+                <mat-option value="allow">Permitir vender sin stock</mat-option>
+                <mat-option value="deny">No vender sin stock</mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Peso (g)</mat-label>
+              <input matInput type="number" min="0" step="0.01" formControlName="weight" />
+            </mat-form-field>
+          </form>
+        } @else {
+          <!-- Definición de opciones -->
+          <div class="pf__options">
+            <h3 class="pf__subtitle">Opciones</h3>
+            @for (ot of optionTypes(); track $index) {
+              <div class="opt">
+                <mat-form-field appearance="outline" class="opt__name">
+                  <mat-label>Nombre de la opción</mat-label>
+                  <input
+                    matInput
+                    [value]="ot.name"
+                    placeholder="Color, Talla…"
+                    (input)="setOptionName($index, $any($event.target).value)"
+                  />
+                </mat-form-field>
+
+                <div class="opt__values">
+                  @for (val of ot.values; track val) {
+                    <span class="chip">
+                      {{ val }}
+                      <button type="button" class="chip__x" (click)="removeValue($index, val)" aria-label="Quitar valor">×</button>
+                    </span>
+                  }
+                  <input
+                    #valInput
+                    class="opt__add"
+                    placeholder="Añadir valor y Enter"
+                    (keydown.enter)="addValue($index, valInput)"
+                  />
+                </div>
+
+                <button
+                  mat-icon-button
+                  type="button"
+                  (click)="removeOptionType($index)"
+                  matTooltip="Quitar opción"
+                  aria-label="Quitar opción"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            }
+
+            @if (optionTypes().length < 3) {
+              <button mat-stroked-button type="button" (click)="addOptionType()">
+                <mat-icon>add</mat-icon> Agregar opción
+              </button>
+            }
+          </div>
+
+          <!-- Tabla de variantes -->
+          @if (variantRows().length > 0) {
+            <div class="pf__variant-table-head">
+              <h3 class="pf__subtitle">Variantes ({{ variantRows().length }})</h3>
+              <mat-form-field appearance="outline" class="pf__apply">
+                <mat-label>Aplicar precio a todas</mat-label>
+                <input #applyPrice matInput type="number" min="0" step="0.01" />
+                <span matTextPrefix>$&nbsp;</span>
+                <button mat-icon-button matSuffix type="button" (click)="applyPriceToAll(applyPrice)" aria-label="Aplicar">
+                  <mat-icon>done</mat-icon>
+                </button>
+              </mat-form-field>
+            </div>
+
+            <div class="vtable-wrap">
+              <table class="vtable">
+                <thead>
+                  <tr>
+                    <th>Variante</th>
+                    <th>Precio</th>
+                    <th>Comparado</th>
+                    <th>SKU</th>
+                    <th>Stock</th>
+                    <th>Color</th>
+                    <th>Activa</th>
+                    <th>Por defecto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (row of variantRows(); track row.key) {
+                    <tr [class.vtable__row--off]="!row.active">
+                      <td class="vtable__combo">{{ comboLabel(row) }}</td>
+                      <td>
+                        <input class="vinput" type="number" min="0" step="0.01" [value]="row.price ?? ''" (input)="updateRow(row.key, 'price', $event)" />
+                      </td>
+                      <td>
+                        <input class="vinput" type="number" min="0" step="0.01" [value]="row.comparePrice ?? ''" (input)="updateRow(row.key, 'comparePrice', $event)" />
+                      </td>
+                      <td>
+                        <input class="vinput" [value]="row.sku" (input)="updateRow(row.key, 'sku', $event)" />
+                      </td>
+                      <td>
+                        <input class="vinput vinput--sm" type="number" min="0" [value]="row.stock" (input)="updateRow(row.key, 'stock', $event)" />
+                      </td>
+                      <td class="vtable__center">
+                        <div class="vcolor">
+                          <input
+                            type="color"
+                            class="vcolor__pick"
+                            [value]="row.color || '#cccccc'"
+                            [title]="row.color || 'Sin color'"
+                            (input)="updateRow(row.key, 'color', $event)"
+                            aria-label="Color de variante"
+                          />
+                          @if (row.color) {
+                            <button type="button" class="chip__x" (click)="clearColor(row.key)" aria-label="Quitar color">×</button>
+                          }
+                        </div>
+                      </td>
+                      <td class="vtable__center">
+                        <mat-checkbox [checked]="row.active" (change)="toggleRowActive(row.key)" />
+                      </td>
+                      <td class="vtable__center">
+                        <input type="radio" name="defaultVariant" [checked]="row.isDefault" (change)="setRowDefault(row.key)" aria-label="Variante por defecto" />
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        }
+      </section>
+    </div>
+
+    <!-- ===================== Columna lateral ===================== -->
+    <aside class="pf__side">
+      <section class="pf__card">
+        <h2 class="pf__card-title">Estado</h2>
+        <form class="pf__form" [formGroup]="generalForm">
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Estado de publicación</mat-label>
+            <mat-select formControlName="status">
+              @for (s of statuses; track s) {
+                <mat-option [value]="s">{{ statusLabel(s) }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-slide-toggle formControlName="featured" class="pf__toggle">
+            Producto destacado
+          </mat-slide-toggle>
+        </form>
+      </section>
+
+      <section class="pf__card">
+        <h2 class="pf__card-title">Categorías</h2>
+        <form class="pf__form" [formGroup]="generalForm">
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Selecciona de la lista</mat-label>
+            <mat-select formControlName="categoryIds" multiple>
+              @for (c of categories(); track c.id) {
+                <mat-option [value]="c.id">{{ c.name }}</mat-option>
+              }
+            </mat-select>
+            @if (generalForm.controls.categoryIds.hasError('required')) {
+              <mat-error>Selecciona al menos una categoría</mat-error>
+            }
+          </mat-form-field>
+        </form>
+      </section>
+
+      <section class="pf__card">
+        <h2 class="pf__card-title">SEO</h2>
+        <form class="pf__form" [formGroup]="generalForm">
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Meta título</mat-label>
+            <input matInput formControlName="metaTitle" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="pf__full">
+            <mat-label>Meta descripción</mat-label>
+            <textarea matInput rows="3" formControlName="metaDescription"></textarea>
+            <mat-hint align="end">{{ generalForm.controls.metaDescription.value.length }}/500</mat-hint>
+          </mat-form-field>
+        </form>
+      </section>
+    </aside>
+  </div>
+</section>

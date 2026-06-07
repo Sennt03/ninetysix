@@ -1,0 +1,35 @@
+<section class="profile">
+  <h1 class="profile__title">Mi perfil</h1>
+
+  @if (loading()) {
+    <div class="profile__loading">
+      <mat-progress-spinner mode="indeterminate" diameter="40" />
+    </div>
+  } @else if (user(); as u) {
+    <mat-card appearance="outlined" class="profile__card">
+      <div class="profile__avatar">
+        <mat-icon>account_circle</mat-icon>
+      </div>
+
+      <dl class="profile__list">
+        <dt>Usuario</dt>
+        <dd>{{ u.username }}</dd>
+
+        <dt>Email</dt>
+        <dd>{{ u.email }}</dd>
+
+        <dt>Roles</dt>
+        <dd class="profile__roles">
+          @for (role of u.roles; track role) {
+            <mat-chip>{{ role }}</mat-chip>
+          }
+        </dd>
+
+        @if (u.createdAt) {
+          <dt>Alta</dt>
+          <dd>{{ u.createdAt | date: 'medium' }}</dd>
+        }
+      </dl>
+    </mat-card>
+  }
+</section>
