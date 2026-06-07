@@ -4,7 +4,7 @@ Base full‑stack: **Backend** (NestJS) + **Frontend** (Angular 21 + Material).
 Incluye autenticación (JWT access+refresh), roles (RBAC) y administración inicial de usuarios.
 
 ```
-01.Ninetysix/
+02.Ninetysix/
 ├── Backend/    NestJS · BD seleccionable (Mongo/SQL) · auth + RBAC · sockets opcionales
 └── Frontend/   Angular 21 (zoneless, SSR por rutas) · Material · panel admin
 ```
@@ -13,11 +13,12 @@ Incluye autenticación (JWT access+refresh), roles (RBAC) y administración inic
 
 ```bash
 cd Backend
-cp .env.example .env           # edita secretos y DATABASE_TYPE
-docker compose up -d mongo     # o postgres (ver docker-compose.yml)
+# El .env ya viene configurado para MySQL local (BD 'ninetysix', puerto 3307).
+docker compose up -d mysql     # MySQL en localhost:3307 (contenedor ninetysix_mysql)
 npm install
-npm run seed                   # crea el admin inicial (admin@ninetysix.com / Admin1234!)
-npm run start:dev              # API en http://localhost:3000/api/v1  ·  Swagger en /docs
+npx prisma migrate deploy      # crea las tablas en la BD 'ninetysix'
+npm run seed                   # crea el admin inicial (admin@ninetysixshop.com / admin123)
+npm run start:dev              # API en http://localhost:3001/api  ·  Swagger en /docs
 ```
 
 - Cambia de base de datos con **una** variable: `DATABASE_TYPE=mongodb | postgres | mysql`.
@@ -33,14 +34,14 @@ npm start                      # http://localhost:4200
 ```
 
 La URL del API se configura en `src/environments/environment.ts`
-(`url_api`, por defecto `http://localhost:3000/api/v1`).
+(`url_api`, por defecto `http://localhost:3001/api`).
 
 > El backend ya permite CORS desde `http://localhost:4200` (variable `CORS_ORIGINS`).
 
 ## 3. Probar
 
 1. Abre `http://localhost:4200` → te redirige a `/auth/login`.
-2. Entra con `admin@ninetysix.com` / `Admin1234!` (o regístrate como usuario normal).
+2. Entra con `admin@ninetysixshop.com` / `admin123` (o regístrate como usuario normal).
 3. Como **ADMIN** verás el menú **Usuarios**: listado paginado, editar roles y eliminar.
 4. **Mi perfil** muestra `/users/me`. **Cerrar sesión** invalida el refresh token.
 
