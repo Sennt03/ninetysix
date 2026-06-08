@@ -1,14 +1,14 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 /** Moneda de la tienda. */
-export const CURRENCY = 'S/';
+export const CURRENCY = '$';
 
-/** Formatea un monto como `S/ 1,299.00`. Devuelve '' si es null/undefined. */
+/** Formatea un monto como `$ 1,299.00`. Devuelve '' si es null/undefined. */
 export function formatPrice(value: number | null | undefined): string {
   if (value == null) {
     return '';
   }
-  const amount = value.toLocaleString('es-PE', {
+  const amount = value.toLocaleString('en-US', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

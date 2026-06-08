@@ -3,7 +3,7 @@ import { CategoryStatus, Prisma, ProductStatus } from '@prisma/client';
 import { PrismaService } from '../../database/prisma/prisma.service';
 
 /** Máximo de colecciones en la portada (el resto se verá en la pestaña de catálogo). */
-const COLLECTIONS_LIMIT = 3;
+const COLLECTIONS_LIMIT = 6;
 
 /** Tarjeta de producto para la tienda pública (NUNCA incluye costPrice). */
 export interface StoreProductCard {
@@ -175,6 +175,43 @@ export class StorefrontService {
       select: COLLECTION_SELECT,
     });
     return { categories: categories.map((c) => this.toCollection(c)) };
+  }
+
+  /**
+   * Productos activos para la PLP del catálogo. Sin filtro → todos; con `categorySlug`
+   * → los de esa categoría y sus descendientes. Devuelve [] si la categoría no existe.
+   */
+  async getProducts(categorySlug?: string): Promise<StoreProductCard[]> {
+    const where: Prisma.ProductWhereInput = { status: ProductStatus.active };
+
+    if (categorySlug) {
+      const cat = await this.prisma.category.findFirst({
+        where: { slug: categorySlug, status: CategoryStatus.active },
+        select: { id: true },
+      });
+      if (!cat) {
+        return [];
+      }
+      const ids = await this.activeCategoryAndDescendants(cat.id);
+      where.categories = { some: { id: { in: ids } } };
+    }
+
+    const products = await this.prisma.product.findMany({
+      where,
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      include: CARD_INCLUDE,
+    });
+    return products.map((p) => this.toCard(p));
+  }
+
+  /** Productos destacados activos (página Destacados). */
+  async getFeatured(): Promise<StoreProductCard[]> {
+    const products = await this.prisma.product.findMany({
+      where: { status: ProductStatus.active, featured: true },
+      orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+      include: CARD_INCLUDE,
+    });
+    return products.map((p) => this.toCard(p));
   }
 
   /** Detalle de categoría + todos sus productos activos (incluye subcategorías). */

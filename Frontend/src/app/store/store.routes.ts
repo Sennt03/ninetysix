@@ -3,7 +3,6 @@ import { StoreLayoutComponent } from './layout/store-layout.component';
 
 /**
  * Rutas de la tienda pública (SSR). El layout es el padre común (header + footer).
- * Aquí se irán añadiendo: catálogo (PLP), producto (PDP), historia, tiendas, etc.
  */
 export const STORE_ROUTES: Routes = [
   {
@@ -20,6 +19,11 @@ export const STORE_ROUTES: Routes = [
           import('./pages/catalogo/catalogo.component').then((m) => m.CatalogoComponent),
       },
       {
+        path: 'destacados',
+        loadComponent: () =>
+          import('./pages/destacados/destacados.component').then((m) => m.DestacadosComponent),
+      },
+      {
         path: 'categoria/:slug',
         data: { hero: false },
         loadComponent: () =>
@@ -32,6 +36,21 @@ export const STORE_ROUTES: Routes = [
           import('./pages/producto/producto.component').then((m) => m.ProductoComponent),
       },
       {
+        path: 'ubicaciones',
+        loadComponent: () =>
+          import('./pages/tiendas/tiendas.component').then((m) => m.TiendasComponent),
+      },
+      { path: 'tiendas', redirectTo: 'ubicaciones', pathMatch: 'full' },
+      {
+        path: 'redes',
+        loadComponent: () => import('./pages/redes/redes.component').then((m) => m.RedesComponent),
+      },
+      {
+        path: 'contacto',
+        loadComponent: () =>
+          import('./pages/contacto/contacto.component').then((m) => m.ContactoComponent),
+      },
+      {
         path: 'historia',
         loadComponent: () =>
           import('./pages/historia/historia.component').then((m) => m.HistoriaComponent),
@@ -40,15 +59,6 @@ export const STORE_ROUTES: Routes = [
         path: 'resenas',
         loadComponent: () =>
           import('./pages/resenas/resenas.component').then((m) => m.ResenasComponent),
-      },
-      {
-        path: 'redes',
-        loadComponent: () => import('./pages/redes/redes.component').then((m) => m.RedesComponent),
-      },
-      {
-        path: 'tiendas',
-        loadComponent: () =>
-          import('./pages/tiendas/tiendas.component').then((m) => m.TiendasComponent),
       },
       { path: '**', redirectTo: '' },
     ],

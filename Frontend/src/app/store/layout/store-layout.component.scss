@@ -4,34 +4,58 @@
 
 .store-shell {
   /* ===========================================================
-     Marca Ninetysix · tienda pública — paleta cálida premium
-     (espresso / taupe / rose-gold / crema). Independiente del
-     panel admin (monocromo). Estos tokens heredan a toda la tienda.
+     Marca Ninetysix · tienda pública — streetwear dark
+     (negro profundo + verde neón). Estos tokens heredan a toda
+     la tienda. Se conservan alias de los nombres antiguos para
+     que el resto de páginas adopten el tema oscuro sin reescribir.
      =========================================================== */
-  --st-bg: #faf7f4;
-  --st-cream: #f3ece6;
-  --st-sand: #e7ddd4;
-  --st-taupe: #b9a394;
-  --st-rose: #b08d7a;
-  --st-rose-deep: #8a6a58;
-  --st-espresso: #2b1d18;
-  --st-ink: #241a16;
-  --st-muted: #897a70;
-  --st-line: rgb(43 29 24 / 10%);
+
+  /* Superficies */
+  --st-bg: #0a0b0a;
+  --st-bg-2: #0f110f;
+  --st-surface: #151715;
+  --st-surface-2: #1c1f1c;
+  --st-glass: rgb(20 23 20 / 55%);
+  --st-elev: #202320;
+
+  /* Acento neón */
+  --st-lime: #c6ff3e;
+  --st-lime-2: #aef41a;
+  --st-lime-ink: #0a0b0a;
+  --st-lime-glow: rgb(198 255 62 / 35%);
+
+  /* Texto */
+  --st-text: #f4f5f2;
+  --st-muted: #9b9f98;
+  --st-faint: #6c706a;
   --st-white: #ffffff;
 
-  --st-radius: 16px;
-  --st-radius-lg: 26px;
-  --st-shadow: 0 24px 60px -34px rgb(43 29 24 / 55%);
+  --st-line: rgb(255 255 255 / 9%);
+  --st-line-strong: rgb(255 255 255 / 16%);
 
-  --st-font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --st-radius: 16px;
+  --st-radius-lg: 22px;
+  --st-radius-xl: 30px;
+  --st-shadow: 0 30px 70px -36px rgb(0 0 0 / 80%);
+  --st-shadow-lime: 0 24px 60px -28px var(--st-lime-glow);
+
+  --st-font-display: 'Archivo', 'Inter', system-ui, -apple-system, sans-serif;
   --st-font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* --- Alias de compatibilidad (páginas aún no rediseñadas) --- */
+  --st-cream: var(--st-surface-2);
+  --st-sand: #1b1e1b;
+  --st-taupe: #2a2e2a;
+  --st-rose: var(--st-lime);
+  --st-rose-deep: var(--st-lime-2);
+  --st-espresso: var(--st-text);
+  --st-ink: var(--st-text);
 
   display: flex;
   flex-direction: column;
   min-height: 100svh;
   background: var(--st-bg);
-  color: var(--st-espresso);
+  color: var(--st-text);
   font-family: var(--st-font-body);
   /* La cabecera es fija; las páginas con hero ocupan el viewport completo. */
   overflow-x: hidden;

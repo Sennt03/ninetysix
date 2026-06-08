@@ -1,62 +1,167 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { SeoService } from '@services/seo.service';
 import { StorefrontService } from '@services/storefront.service';
-import { CollectionCardComponent } from '../../components/collection-card/collection-card.component';
-import { PageHeroComponent } from '../../components/page-hero/page-hero.component';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { RevealOnScrollDirective } from '../../shared/reveal-on-scroll.directive';
 
-/** Página "Catálogo": hero + grid con TODAS las categorías activas. */
+/**
+ * Catálogo (PLP): encabezado + sidebar de categorías (orden del panel) + grid de
+ * productos. La categoría seleccionada filtra el grid contra la API (`''` = todos).
+ */
 @Component({
   selector: 'app-catalogo',
-  imports: [PageHeroComponent, CollectionCardComponent, RevealOnScrollDirective],
+  imports: [PageHeaderComponent, ProductCardComponent, RevealOnScrollDirective],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-page-hero pill="Catálogo" title="Nuestro Catálogo"
-      subtitle="Explora nuestras colecciones exclusivas diseñadas para el hombre moderno">
-      <svg ph-icon viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7" />
-        <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7" />
-        <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7" />
-        <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.7" />
-      </svg>
-    </app-page-hero>
+    <app-page-header kicker="+ Colección" title="Catálogo"
+      subtitle="Explora todas las prendas Ninetysix. Filtra por categoría y encuentra tu próximo drop." />
 
-    <section class="cat">
-      @if (categories().length) {
-        <div class="cat__grid">
-          @for (c of categories(); track c.slug; let i = $index) {
-            <div appReveal [appRevealDelay]="(i % 3) * 80">
-              <app-collection-card [collection]="c" [countPill]="true" />
-            </div>
+    <section class="ct">
+      <aside class="ct__side">
+        <span class="ct__side-label">Categorías</span>
+        <nav class="ct__nav" aria-label="Filtrar por categoría">
+          <button
+            type="button"
+            class="ct__cat"
+            [class.is-active]="selected() === ''"
+            (click)="selectCat('')"
+          >
+            Todos
+            <span class="ct__count">{{ totalCount() }}</span>
+          </button>
+          @for (c of categories(); track c.slug) {
+            <button
+              type="button"
+              class="ct__cat"
+              [class.is-active]="selected() === c.slug"
+              (click)="selectCat(c.slug)"
+            >
+              {{ c.name }}
+              <span class="ct__count">{{ c.productCount }}</span>
+            </button>
           }
-        </div>
-      } @else {
-        <p class="cat__empty">Aún no hay categorías disponibles.</p>
-      }
+        </nav>
+      </aside>
+
+      <div class="ct__main">
+        @if (products(); as list) {
+          @if (list.length) {
+            <div class="ct__grid">
+              @for (p of list; track p.id; let i = $index) {
+                <div appReveal [appRevealDelay]="(i % 4) * 70">
+                  <app-product-card [product]="p" />
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="ct__empty">No hay productos en esta categoría todavía.</p>
+          }
+        } @else {
+          <div class="ct__grid" aria-hidden="true">
+            @for (s of skeletons; track s) {
+              <span class="ct__sk"></span>
+            }
+          </div>
+        }
+      </div>
     </section>
   `,
   styles: `
     :host { display: block; }
-    .cat {
-      max-width: 1200px;
+    .ct {
+      max-width: 1280px;
       margin: 0 auto;
-      padding: clamp(48px, 7vw, 90px) clamp(16px, 5vw, 40px);
-    }
-    .cat__grid {
+      padding: clamp(20px, 3vw, 36px) clamp(16px, 5vw, 44px) clamp(60px, 9vw, 110px);
       display: grid;
       grid-template-columns: 1fr;
-      gap: clamp(16px, 2.5vw, 26px);
+      gap: clamp(24px, 4vw, 44px);
+      align-items: start;
     }
-    .cat__empty {
-      text-align: center;
+    .ct__side-label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--st-faint);
+      margin-bottom: 14px;
+    }
+    .ct__nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ct__cat {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--st-line);
+      background: var(--st-surface);
+      color: var(--st-muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.25s ease, border-color 0.25s ease, background-color 0.25s ease, transform 0.2s ease;
+    }
+    .ct__cat:hover {
+      color: var(--st-text);
+      border-color: var(--st-line-strong);
+      transform: translateX(2px);
+    }
+    .ct__cat.is-active {
+      background: var(--st-lime);
+      border-color: transparent;
+      color: var(--st-lime-ink);
+      box-shadow: 0 10px 26px -12px var(--st-lime-glow);
+    }
+    .ct__count {
+      font-size: 0.74rem;
+      font-weight: 700;
+      opacity: 0.7;
+    }
+    .ct__cat.is-active .ct__count { opacity: 0.85; }
+
+    .ct__grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(10px, 2vw, 22px);
+    }
+    .ct__grid > * { min-width: 0; }
+    .ct__empty {
       color: var(--st-muted);
       padding: 40px 0;
     }
-    @media (min-width: 600px) {
-      .cat__grid { grid-template-columns: repeat(2, 1fr); }
+    .ct__sk {
+      display: block;
+      border-radius: var(--st-radius-lg);
+      aspect-ratio: 3 / 4.4;
+      background: linear-gradient(100deg, var(--st-surface) 30%, var(--st-surface-2) 50%, var(--st-surface) 70%);
+      background-size: 200% 100%;
+      animation: ctsk 1.3s ease-in-out infinite;
     }
-    @media (min-width: 980px) {
-      .cat__grid { grid-template-columns: repeat(3, 1fr); }
+    @keyframes ctsk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+    @media (prefers-reduced-motion: reduce) { .ct__sk { animation: none; } }
+
+    @media (min-width: 760px) {
+      .ct__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1000px) {
+      .ct {
+        grid-template-columns: 232px minmax(0, 1fr);
+      }
+      .ct__side {
+        position: sticky;
+        top: 96px;
+      }
+      .ct__nav { flex-direction: column; }
+      .ct__cat { justify-content: space-between; width: 100%; }
+      .ct__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1280px) {
+      .ct__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     }
   `,
 })
@@ -64,14 +169,28 @@ export class CatalogoComponent {
   private readonly storefront = inject(StorefrontService);
   private readonly seo = inject(SeoService);
 
+  readonly selected = signal('');
+  readonly skeletons = [0, 1, 2, 3, 4, 5, 6, 7];
+
   readonly categories = computed(() => this.storefront.catalog()?.categories ?? []);
+  readonly products = computed(() => this.storefront.products(this.selected())());
+
+  readonly totalCount = computed(() =>
+    this.categories().reduce((sum, c) => sum + (c.productCount ?? 0), 0),
+  );
 
   constructor() {
     this.seo.update({
       title: 'Catálogo · Ninetysix',
       description:
-        'Explora todas las colecciones de Ninetysix: camisas, trajes, conjuntos, accesorios y más moda masculina premium.',
+        'Explora todo el catálogo Ninetysix: hoodies, tees, joggers, cargos y más streetwear premium. Filtra por categoría.',
     });
     this.storefront.loadCatalog();
+    this.storefront.loadProducts('');
+  }
+
+  selectCat(slug: string): void {
+    this.selected.set(slug);
+    this.storefront.loadProducts(slug);
   }
 }

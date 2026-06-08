@@ -13,7 +13,7 @@ exports.StorefrontService = void 0;
 const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../../database/prisma/prisma.service");
-const COLLECTIONS_LIMIT = 3;
+const COLLECTIONS_LIMIT = 6;
 const CARD_INCLUDE = {
     categories: { select: { name: true }, take: 1 },
     images: {
@@ -93,6 +93,34 @@ let StorefrontService = class StorefrontService {
             select: COLLECTION_SELECT,
         });
         return { categories: categories.map((c) => this.toCollection(c)) };
+    }
+    async getProducts(categorySlug) {
+        const where = { status: client_1.ProductStatus.active };
+        if (categorySlug) {
+            const cat = await this.prisma.category.findFirst({
+                where: { slug: categorySlug, status: client_1.CategoryStatus.active },
+                select: { id: true },
+            });
+            if (!cat) {
+                return [];
+            }
+            const ids = await this.activeCategoryAndDescendants(cat.id);
+            where.categories = { some: { id: { in: ids } } };
+        }
+        const products = await this.prisma.product.findMany({
+            where,
+            orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+            include: CARD_INCLUDE,
+        });
+        return products.map((p) => this.toCard(p));
+    }
+    async getFeatured() {
+        const products = await this.prisma.product.findMany({
+            where: { status: client_1.ProductStatus.active, featured: true },
+            orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
+            include: CARD_INCLUDE,
+        });
+        return products.map((p) => this.toCard(p));
     }
     async getCategory(slug) {
         const cat = await this.prisma.category.findFirst({

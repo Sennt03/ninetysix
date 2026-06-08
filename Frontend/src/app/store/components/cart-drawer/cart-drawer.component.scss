@@ -18,7 +18,8 @@
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgb(36 26 22 / 48%);
+  background: rgb(0 0 0 / 65%);
+  backdrop-filter: blur(2px);
   opacity: 0;
   transition: opacity 0.3s ease;
   cursor: pointer;
@@ -33,10 +34,11 @@
   right: 0;
   height: 100%;
   width: min(92vw, 430px);
-  background: var(--st-bg);
+  background: var(--st-bg-2);
+  border-left: 1px solid var(--st-line);
   display: flex;
   flex-direction: column;
-  box-shadow: -24px 0 60px -30px rgb(43 29 24 / 75%);
+  box-shadow: -30px 0 70px -30px rgb(0 0 0 / 90%);
   transform: translateX(100%);
   transition: transform 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
@@ -54,9 +56,10 @@
 .cd__title {
   margin: 0;
   font-family: var(--st-font-display);
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--st-espresso);
+  font-size: 1.5rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--st-text);
 }
 .cd__sub {
   margin: 2px 0 0;
@@ -68,14 +71,14 @@
   place-items: center;
   width: 40px;
   height: 40px;
-  border: 0;
+  border: 1px solid var(--st-line);
   border-radius: 999px;
-  background: var(--st-cream);
-  color: var(--st-espresso);
+  background: var(--st-surface);
+  color: var(--st-text);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
-.cd__close:hover { background: var(--st-sand); }
+.cd__close:hover { background: var(--st-surface-2); color: var(--st-lime); }
 .cd__close svg { width: 20px; height: 20px; }
 
 .cd__items {
@@ -93,7 +96,7 @@
   gap: 14px;
   align-items: start;
   padding: 14px;
-  background: var(--st-white);
+  background: var(--st-surface);
   border: 1px solid var(--st-line);
   border-radius: var(--st-radius);
 }
@@ -102,19 +105,19 @@
   height: 80px;
   border-radius: 10px;
   overflow: hidden;
-  background: var(--st-sand);
+  background: var(--st-surface-2);
   display: block;
 }
 .ci__img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ci__ph { display: block; width: 100%; height: 100%; background: linear-gradient(135deg, var(--st-sand), var(--st-taupe)); }
+.ci__ph { display: block; width: 100%; height: 100%; background: linear-gradient(135deg, var(--st-surface-2), var(--st-elev)); }
 .ci__body { min-width: 0; }
 .ci__name {
-  font-weight: 600;
-  color: var(--st-espresso);
+  font-weight: 700;
+  color: var(--st-text);
   text-decoration: none;
   line-height: 1.3;
 }
-.ci__name:hover { color: var(--st-rose-deep); }
+.ci__name:hover { color: var(--st-lime); }
 .ci__opts {
   margin: 4px 0 10px;
   display: flex;
@@ -130,8 +133,8 @@
   gap: 10px;
 }
 .ci__sub {
-  font-weight: 700;
-  color: var(--st-espresso);
+  font-weight: 800;
+  color: var(--st-text);
   white-space: nowrap;
 }
 .ci__qty {
@@ -144,25 +147,25 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  border: 1px solid var(--st-line);
+  border: 1px solid var(--st-line-strong);
   border-radius: 8px;
-  background: var(--st-white);
-  color: var(--st-espresso);
+  background: var(--st-bg-2);
+  color: var(--st-text);
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
-.ci__qty button:hover { background: var(--st-cream); }
+.ci__qty button:hover { background: var(--st-surface-2); color: var(--st-lime); }
 .ci__qty button svg { width: 16px; height: 16px; }
-.ci__num { min-width: 26px; text-align: center; font-weight: 700; color: var(--st-espresso); }
+.ci__num { min-width: 26px; text-align: center; font-weight: 700; color: var(--st-text); }
 .ci__del {
   border: 0;
   background: transparent;
-  color: var(--st-muted);
+  color: var(--st-faint);
   cursor: pointer;
   padding: 4px;
   transition: color 0.2s ease;
 }
-.ci__del:hover { color: #c0392b; }
+.ci__del:hover { color: #ff6b6b; }
 .ci__del svg { width: 20px; height: 20px; }
 
 .cd__foot {
@@ -178,15 +181,16 @@
   justify-content: space-between;
   padding: 16px 18px;
   border-radius: var(--st-radius);
-  background: linear-gradient(180deg, #efe4dc, #e7d8ce);
+  background: var(--st-surface);
+  border: 1px solid var(--st-line);
 }
 .cd__total-info { display: flex; flex-direction: column; }
-.cd__total-label { color: var(--st-ink); font-weight: 600; }
+.cd__total-label { color: var(--st-text); font-weight: 700; }
 .cd__total-count { color: var(--st-muted); font-size: 0.84rem; }
 .cd__total strong {
   font-family: var(--st-font-display);
-  font-size: 1.7rem;
-  color: var(--st-espresso);
+  font-size: 1.6rem;
+  color: var(--st-lime);
 }
 .cd__wa {
   display: inline-flex;
@@ -196,25 +200,25 @@
   padding: 15px;
   border-radius: 12px;
   background: #25d366;
-  color: #fff;
-  font-weight: 600;
+  color: #04240f;
+  font-weight: 800;
   text-decoration: none;
-  box-shadow: 0 12px 28px -14px rgb(37 211 102 / 75%);
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 14px 30px -14px rgb(37 211 102 / 70%);
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
-.cd__wa:hover { background: #20bd5a; transform: translateY(-1px); }
+.cd__wa:hover { filter: brightness(1.06); transform: translateY(-1px); }
 .cd__wa svg { width: 20px; height: 20px; }
 .cd__continue {
   padding: 14px;
-  border: 1px solid var(--st-espresso);
+  border: 1px solid var(--st-line-strong);
   border-radius: 12px;
   background: transparent;
-  color: var(--st-espresso);
-  font-weight: 600;
+  color: var(--st-text);
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
-.cd__continue:hover { background: var(--st-cream); }
+.cd__continue:hover { background: var(--st-surface); border-color: var(--st-lime); color: var(--st-lime); }
 
 .cd__empty {
   flex: 1;
@@ -232,8 +236,9 @@
   width: 80px;
   height: 80px;
   border-radius: 999px;
-  background: var(--st-cream);
-  color: var(--st-taupe);
+  background: var(--st-surface);
+  border: 1px solid var(--st-line);
+  color: var(--st-faint);
 }
 .cd__empty-ic svg { width: 36px; height: 36px; }
 .cd__empty-txt { margin: 0; color: var(--st-muted); font-size: 1.05rem; }

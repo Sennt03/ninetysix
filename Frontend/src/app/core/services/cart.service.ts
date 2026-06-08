@@ -4,7 +4,7 @@ import { formatPrice } from '../../store/shared/price.pipe';
 
 const CART_KEY = 'ninetysix_cart';
 /** Número de WhatsApp de la tienda para finalizar el pedido. */
-const WHATSAPP_NUMBER = '51987654321';
+const WHATSAPP_NUMBER = '573001234567';
 
 export interface CartItem {
   /** Clave única de la línea (id de variante). */

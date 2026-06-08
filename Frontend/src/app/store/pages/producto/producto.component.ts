@@ -267,12 +267,12 @@ export class ProductoComponent {
     const url = `${this.seo.siteOrigin}/producto/${p.slug}`;
     const offers =
       low === high
-        ? { '@type': 'Offer', price: low.toFixed(2), priceCurrency: 'PEN', availability, url }
+        ? { '@type': 'Offer', price: low.toFixed(2), priceCurrency: 'USD', availability, url }
         : {
             '@type': 'AggregateOffer',
             lowPrice: low.toFixed(2),
             highPrice: high.toFixed(2),
-            priceCurrency: 'PEN',
+            priceCurrency: 'USD',
             offerCount: p.variants.length,
             availability,
             url,

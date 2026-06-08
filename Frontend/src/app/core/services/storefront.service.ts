@@ -13,7 +13,13 @@ import {
 } from '@angular/core';
 import { environment } from '@env/environment';
 import { ApiResponse } from '@models/api.models';
-import { StoreCatalog, StoreCategoryDetail, StoreHome, StoreProduct } from '@models/storefront.models';
+import {
+  StoreCatalog,
+  StoreCategoryDetail,
+  StoreHome,
+  StoreProduct,
+  StoreProductCard,
+} from '@models/storefront.models';
 import { EMPTY, catchError, finalize, map } from 'rxjs';
 
 const CACHE_PREFIX = 'ninetysix_sf_';
@@ -42,8 +48,10 @@ export class StorefrontService {
 
   private readonly homeRes = this.make<StoreHome>();
   private readonly catalogRes = this.make<StoreCatalog>();
+  private readonly featuredRes = this.make<StoreProductCard[]>();
   private readonly categoryRes = new Map<string, Resource<StoreCategoryDetail>>();
   private readonly productRes = new Map<string, Resource<StoreProduct>>();
+  private readonly productsRes = new Map<string, Resource<StoreProductCard[]>>();
 
   // ----------------------------- portada -----------------------------
   readonly home: Signal<StoreHome | null> = this.homeRes.data.asReadonly();
@@ -55,6 +63,27 @@ export class StorefrontService {
   readonly catalog: Signal<StoreCatalog | null> = this.catalogRes.data.asReadonly();
   loadCatalog(): void {
     this.swr('catalog', this.catalogRes, '/catalog');
+  }
+
+  // -------------------- productos del catálogo (PLP) --------------------
+  /** Productos por categoría (`''` = todos). Memoizados por clave. */
+  products(categorySlug = ''): Signal<StoreProductCard[] | null> {
+    return this.ensure(this.productsRes, categorySlug).data;
+  }
+  productsSettled(categorySlug = ''): Signal<boolean> {
+    return this.ensure(this.productsRes, categorySlug).settled;
+  }
+  loadProducts(categorySlug = ''): void {
+    const path = categorySlug
+      ? `/products?category=${encodeURIComponent(categorySlug)}`
+      : '/products';
+    this.swr(`products:${categorySlug}`, this.ensure(this.productsRes, categorySlug), path);
+  }
+
+  // ----------------------------- destacados -----------------------------
+  readonly featured: Signal<StoreProductCard[] | null> = this.featuredRes.data.asReadonly();
+  loadFeatured(): void {
+    this.swr('featured', this.featuredRes, '/featured');
   }
 
   // ----------------------------- categoría -----------------------------

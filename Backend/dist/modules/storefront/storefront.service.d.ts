@@ -87,6 +87,8 @@ export declare class StorefrontService {
     constructor(prisma: PrismaService);
     getHome(): Promise<StoreHomePayload>;
     getCatalog(): Promise<StoreCatalogPayload>;
+    getProducts(categorySlug?: string): Promise<StoreProductCard[]>;
+    getFeatured(): Promise<StoreProductCard[]>;
     getCategory(slug: string): Promise<StoreCategoryDetail | null>;
     getProduct(slug: string): Promise<StoreProductDetail | null>;
     getSitemap(): Promise<StoreSitemap>;

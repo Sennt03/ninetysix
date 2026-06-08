@@ -12,7 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CartService } from '@services/cart.service';
 import { filter } from 'rxjs';
-import { STORE_NAV } from '../../shared/store.config';
+import { STORE_NAV, STORE_WHATSAPP } from '../../shared/store.config';
 
 /**
  * Cabecera de la tienda. Es fija. En páginas con hero es transparente sobre él y
@@ -26,7 +26,9 @@ import { STORE_NAV } from '../../shared/store.config';
   template: `
     <header class="hd" [class.hd--solid]="!transparent()" [class.hd--menu-open]="menuOpen()">
       <div class="hd__inner">
-        <a class="hd__brand" routerLink="/" aria-label="Ninetysix — Inicio" (click)="closeMenu()">Ninetysix</a>
+        <a class="hd__brand" routerLink="/" aria-label="Ninetysix — Inicio" (click)="closeMenu()">
+          Ninety<span class="hd__brand-accent">six</span>
+        </a>
 
         <nav class="hd__nav" aria-label="Navegación principal">
           @for (item of nav; track item.link) {
@@ -40,6 +42,26 @@ import { STORE_NAV } from '../../shared/store.config';
         </nav>
 
         <div class="hd__actions">
+          <a
+            class="hd__wa"
+            [href]="whatsapp"
+            target="_blank"
+            rel="noopener"
+            aria-label="Escríbenos por WhatsApp"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M3.5 20.5l1.3-4.6A8 8 0 1112 20a8 8 0 01-4-1.1l-4.5 1.6z"
+                stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"
+              />
+              <path
+                d="M9 8.5c.2 2.5 2 4.3 4.5 4.5.6 0 1.2-.6 1.2-1.2l-1.6-.8-.8.8a4 4 0 01-1.6-1.6l.8-.8-.8-1.6c-.6 0-1.3.6-1.3 1.2z"
+                fill="currentColor"
+              />
+            </svg>
+            <span>WhatsApp</span>
+          </a>
+
           <button type="button" class="hd__icon-btn" aria-label="Carrito de compras" (click)="cart.toggle()">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M6 2l-2 4v14a2 2 0 002 2h12a2 2 0 002-2V6l-2-4H6z" stroke="currentColor"
@@ -124,6 +146,7 @@ export class StoreHeaderComponent {
   });
 
   readonly nav = STORE_NAV;
+  readonly whatsapp = STORE_WHATSAPP;
 
   constructor() {
     afterNextRender(() => {

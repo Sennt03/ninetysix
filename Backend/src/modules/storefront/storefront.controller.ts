@@ -1,4 +1,4 @@
-import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
+import { Controller, Get, NotFoundException, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators/public.decorator';
 import { StorefrontService } from './storefront.service';
@@ -24,6 +24,18 @@ export class StorefrontController {
   @ApiOperation({ summary: 'Catálogo: todas las categorías activas' })
   catalog() {
     return this.storefront.getCatalog();
+  }
+
+  @Get('products')
+  @ApiOperation({ summary: 'Productos activos (opcional ?category=slug para filtrar)' })
+  products(@Query('category') category?: string) {
+    return this.storefront.getProducts(category);
+  }
+
+  @Get('featured')
+  @ApiOperation({ summary: 'Productos destacados activos' })
+  featured() {
+    return this.storefront.getFeatured();
   }
 
   @Get('sitemap')

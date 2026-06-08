@@ -14,18 +14,18 @@
 }
 
 .hd--solid {
-  background: rgb(255 255 255 / 92%);
-  backdrop-filter: saturate(140%) blur(10px);
+  background: rgb(10 11 10 / 82%);
+  backdrop-filter: saturate(140%) blur(14px);
   border-bottom-color: var(--st-line);
-  box-shadow: 0 6px 24px -18px rgb(43 29 24 / 55%);
-  color: var(--st-espresso);
+  box-shadow: 0 10px 34px -22px rgb(0 0 0 / 90%);
+  color: var(--st-text);
 }
 
 .hd__inner {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  height: 68px;
-  padding: 0 clamp(16px, 4vw, 40px);
+  height: 72px;
+  padding: 0 clamp(16px, 4vw, 44px);
   display: flex;
   align-items: center;
   gap: 18px;
@@ -33,44 +33,55 @@
 
 .hd__brand {
   font-family: var(--st-font-display);
-  font-size: 1.35rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
+  font-size: 1.32rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: inherit;
   text-decoration: none;
   white-space: nowrap;
+}
+.hd__brand-accent {
+  color: var(--st-lime);
 }
 
 .hd__nav {
   display: none;
   margin-inline: auto;
-  gap: 22px;
+  gap: 26px;
 }
 
 .hd__link {
   position: relative;
   color: inherit;
   text-decoration: none;
-  font-size: 0.92rem;
-  font-weight: 500;
-  letter-spacing: 0.01em;
-  opacity: 0.9;
-  transition: opacity 0.25s ease;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.78;
+  transition: opacity 0.25s ease, color 0.25s ease;
 }
 .hd__link::after {
   content: '';
   position: absolute;
   left: 0;
-  bottom: -6px;
+  bottom: -7px;
   width: 100%;
-  height: 1.5px;
-  background: currentColor;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--st-lime);
+  box-shadow: 0 0 10px var(--st-lime-glow);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s ease;
 }
 .hd__link:hover {
   opacity: 1;
+}
+.hd__link.is-active {
+  opacity: 1;
+  color: var(--st-lime);
 }
 .hd__link:hover::after,
 .hd__link.is-active::after {
@@ -80,8 +91,34 @@
 .hd__actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-left: auto;
+}
+
+/* Botón WhatsApp neón */
+.hd__wa {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 999px;
+  background: var(--st-lime);
+  color: var(--st-lime-ink);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  box-shadow: 0 10px 26px -12px var(--st-lime-glow);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease;
+}
+.hd__wa svg {
+  width: 18px;
+  height: 18px;
+}
+.hd__wa:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 16px 34px -12px var(--st-lime-glow);
 }
 
 .hd__icon-btn {
@@ -89,17 +126,18 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: inherit;
   cursor: pointer;
-  transition: background-color 0.25s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 .hd__icon-btn:hover {
-  background: rgb(127 127 127 / 14%);
+  background: rgb(255 255 255 / 10%);
+  color: var(--st-lime);
 }
 .hd__icon-btn svg {
   width: 22px;
@@ -108,16 +146,16 @@
 
 .hd__badge {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 5px;
+  right: 5px;
   min-width: 17px;
   height: 17px;
   padding: 0 4px;
   border-radius: 999px;
-  background: var(--st-rose-deep);
-  color: #fff;
+  background: var(--st-lime);
+  color: var(--st-lime-ink);
   font-size: 0.64rem;
-  font-weight: 700;
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -139,7 +177,8 @@
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgb(36 26 22 / 45%);
+  background: rgb(0 0 0 / 65%);
+  backdrop-filter: blur(2px);
   opacity: 0;
   transition: opacity 0.3s ease;
   cursor: pointer;
@@ -153,13 +192,14 @@
   right: 0;
   height: 100%;
   width: min(82vw, 340px);
-  background: var(--st-bg);
-  box-shadow: -20px 0 50px -30px rgb(43 29 24 / 70%);
+  background: var(--st-bg-2);
+  border-left: 1px solid var(--st-line);
+  box-shadow: -30px 0 70px -30px rgb(0 0 0 / 90%);
   transform: translateX(100%);
   transition: transform 0.38s cubic-bezier(0.22, 0.61, 0.36, 1);
   display: flex;
   flex-direction: column;
-  color: var(--st-espresso);
+  color: var(--st-text);
 }
 .mob--open .mob__panel {
   transform: translateX(0);
@@ -168,33 +208,45 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
+  padding: 18px 18px;
   border-bottom: 1px solid var(--st-line);
 }
 .mob__brand {
   font-family: var(--st-font-display);
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 .mob__nav {
   display: flex;
   flex-direction: column;
-  padding: 10px 8px;
+  padding: 12px 8px;
 }
 .mob__link {
   padding: 14px 16px;
   border-radius: 12px;
-  color: var(--st-espresso);
+  color: var(--st-text);
   text-decoration: none;
-  font-size: 1.05rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 .mob__link:hover,
 .mob__link.is-active {
-  background: var(--st-cream);
-  color: var(--st-rose-deep);
+  background: rgb(255 255 255 / 6%);
+  color: var(--st-lime);
+}
+
+@media (max-width: 540px) {
+  .hd__wa span {
+    display: none;
+  }
+  .hd__wa {
+    padding: 10px;
+  }
 }
 
 @media (min-width: 900px) {

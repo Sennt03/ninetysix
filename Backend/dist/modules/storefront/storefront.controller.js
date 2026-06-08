@@ -28,6 +28,12 @@ let StorefrontController = class StorefrontController {
     catalog() {
         return this.storefront.getCatalog();
     }
+    products(category) {
+        return this.storefront.getProducts(category);
+    }
+    featured() {
+        return this.storefront.getFeatured();
+    }
     sitemap() {
         return this.storefront.getSitemap();
     }
@@ -63,6 +69,23 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], StorefrontController.prototype, "catalog", null);
+__decorate([
+    (0, common_1.Get)('products'),
+    (0, swagger_1.ApiOperation)({ summary: 'Productos activos (opcional ?category=slug para filtrar)' }),
+    openapi.ApiResponse({ status: 200, type: [Object] }),
+    __param(0, (0, common_1.Query)('category')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], StorefrontController.prototype, "products", null);
+__decorate([
+    (0, common_1.Get)('featured'),
+    (0, swagger_1.ApiOperation)({ summary: 'Productos destacados activos' }),
+    openapi.ApiResponse({ status: 200, type: [Object] }),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], StorefrontController.prototype, "featured", null);
 __decorate([
     (0, common_1.Get)('sitemap'),
     (0, swagger_1.ApiOperation)({ summary: 'Slugs activos (producto + categoría) para el sitemap.xml' }),
