@@ -1,2 +1,0 @@
-import './polyfills.server.mjs';
-import{pa as a}from"./chunk-2XPBCDAW.mjs";import{V as t,_ as n}from"./chunk-ALRE42M2.mjs";var s=class o{snackBar=n(a);success(r){this.open(r,"success-snackbar")}error(r){this.open(r,"error-snackbar")}info(r){this.open(r,"info-snackbar")}open(r,i){this.snackBar.open(r,"Cerrar",{duration:4e3,horizontalPosition:"right",verticalPosition:"top",panelClass:[i]})}static \u0275fac=function(i){return new(i||o)};static \u0275prov=t({token:o,factory:o.\u0275fac,providedIn:"root"})};export{s as a};

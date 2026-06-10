@@ -9,6 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LoggingInterceptor = void 0;
 const common_1 = require("@nestjs/common");
 const operators_1 = require("rxjs/operators");
+const SLOW_REQUEST_MS = 1000;
+const isProd = process.env.NODE_ENV === 'production';
 let LoggingInterceptor = class LoggingInterceptor {
     constructor() {
         this.logger = new common_1.Logger('HTTP');
@@ -19,7 +21,15 @@ let LoggingInterceptor = class LoggingInterceptor {
         const start = Date.now();
         return next.handle().pipe((0, operators_1.tap)(() => {
             const res = context.switchToHttp().getResponse();
-            this.logger.log(`${method} ${originalUrl} ${res.statusCode} +${Date.now() - start}ms`);
+            const ms = Date.now() - start;
+            const noisy = isProd && res.statusCode < 400 && ms < SLOW_REQUEST_MS;
+            if (noisy)
+                return;
+            const line = `${method} ${originalUrl} ${res.statusCode} +${ms}ms`;
+            if (res.statusCode >= 400)
+                this.logger.warn(line);
+            else
+                this.logger.log(line);
         }));
     }
 };

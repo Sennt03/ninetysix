@@ -6,6 +6,13 @@ import { join, resolve } from 'node:path';
 import sharp from 'sharp';
 import { AppConfig } from '../../config/configuration';
 
+// En hosting compartido (Hostinger/CloudLinux) sharp/libvips puede disparar picos
+// de RAM: por defecto arranca un hilo por core (el box reporta muchas CPUs) y
+// cachea buffers de operaciones en memoria. Lo acotamos para que las subidas de
+// imágenes no tumben el proceso. No afecta al render de la tienda.
+sharp.concurrency(1);
+sharp.cache(false);
+
 /** Datos derivados de un archivo procesado, listos para persistir como MediaAsset. */
 export interface ProcessedAsset {
   filename: string;

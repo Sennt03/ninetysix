@@ -20,9 +20,12 @@ import {
   StoreProduct,
   StoreProductCard,
 } from '@models/storefront.models';
-import { EMPTY, catchError, finalize, map } from 'rxjs';
+import { EMPTY, catchError, finalize, map, timeout } from 'rxjs';
 
 const CACHE_PREFIX = 'ninetysix_sf_';
+
+/** Tope para los fetch de datos: si la API tarda más, se abandona (no cuelga el render SSR). */
+const FETCH_TIMEOUT_MS = 8000;
 
 /** Recurso reactivo con estado de carga (data + settled). */
 interface Resource<T> {
@@ -135,6 +138,7 @@ export class StorefrontService {
     this.http
       .get<ApiResponse<T>>(`${this.baseUrl}${path}`)
       .pipe(
+        timeout(FETCH_TIMEOUT_MS),
         map((r) => r.data),
         catchError(() => EMPTY), // resiliencia: conserva lo sembrado si la API falla.
         finalize(() => res.settled.set(true)),

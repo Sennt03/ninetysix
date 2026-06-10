@@ -14,6 +14,7 @@ const common_1 = require("@nestjs/common");
 const client_1 = require("@prisma/client");
 const prisma_service_1 = require("../../database/prisma/prisma.service");
 const COLLECTIONS_LIMIT = 6;
+const PRODUCTS_HARD_CAP = 300;
 const CARD_INCLUDE = {
     categories: { select: { name: true }, take: 1 },
     images: {
@@ -111,6 +112,7 @@ let StorefrontService = class StorefrontService {
             where,
             orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
             include: CARD_INCLUDE,
+            take: PRODUCTS_HARD_CAP,
         });
         return products.map((p) => this.toCard(p));
     }
@@ -119,6 +121,7 @@ let StorefrontService = class StorefrontService {
             where: { status: client_1.ProductStatus.active, featured: true },
             orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
             include: CARD_INCLUDE,
+            take: PRODUCTS_HARD_CAP,
         });
         return products.map((p) => this.toCard(p));
     }
@@ -138,6 +141,7 @@ let StorefrontService = class StorefrontService {
             },
             orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
             include: CARD_INCLUDE,
+            take: PRODUCTS_HARD_CAP,
         });
         return {
             ...this.toCollection(cat),

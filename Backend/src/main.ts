@@ -21,8 +21,15 @@ async function bootstrap() {
   app.setGlobalPrefix(apiPrefix);
 
   // Archivos subidos servidos como estáticos en /uploads (fuera del prefijo de API).
+  // Cache-Control largo + immutable: los nombres son UUID (un asset nunca cambia
+  // de contenido), así el navegador/proxy de Hostinger cachean las imágenes y se
+  // evitan lecturas de disco repetidas en cada visita (baja el IOPS).
   const uploadDir = resolve(config.get('uploads.dir', { infer: true }));
-  app.useStaticAssets(uploadDir, { prefix: '/uploads' });
+  app.useStaticAssets(uploadDir, {
+    prefix: '/uploads',
+    maxAge: '30d',
+    immutable: true,
+  });
 
   // Seguridad. crossOriginResourcePolicy en cross-origin para que el frontend
   // (otro puerto/origen) pueda cargar las imágenes servidas en /uploads.

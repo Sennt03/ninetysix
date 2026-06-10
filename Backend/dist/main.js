@@ -19,7 +19,11 @@ async function bootstrap() {
     const apiPrefix = config.get('apiPrefix', { infer: true });
     app.setGlobalPrefix(apiPrefix);
     const uploadDir = (0, node_path_1.resolve)(config.get('uploads.dir', { infer: true }));
-    app.useStaticAssets(uploadDir, { prefix: '/uploads' });
+    app.useStaticAssets(uploadDir, {
+        prefix: '/uploads',
+        maxAge: '30d',
+        immutable: true,
+    });
     app.use((0, helmet_1.default)({
         contentSecurityPolicy: false,
         crossOriginResourcePolicy: { policy: 'cross-origin' },

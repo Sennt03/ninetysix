@@ -20,6 +20,8 @@ const node_crypto_1 = require("node:crypto");
 const promises_1 = require("node:fs/promises");
 const node_path_1 = require("node:path");
 const sharp_1 = __importDefault(require("sharp"));
+sharp_1.default.concurrency(1);
+sharp_1.default.cache(false);
 const MAX_DIMENSION = 2000;
 const THUMB_SIZE = 400;
 const THUMBS_SUBDIR = 'thumbs';

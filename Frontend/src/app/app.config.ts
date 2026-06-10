@@ -9,6 +9,7 @@ import {
   withPreloading,
 } from '@angular/router';
 import { sessionHandlerInterceptor } from '@core/interceptors/session-handler.interceptor';
+import { ssrApiBaseInterceptor } from '@core/interceptors/ssr-api-base.interceptor';
 import { tokenInterceptor } from '@core/interceptors/token.interceptor';
 import { routes } from './app.routes';
 
@@ -25,7 +26,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideHttpClient(
       withFetch(),
-      withInterceptors([tokenInterceptor, sessionHandlerInterceptor]),
+      withInterceptors([ssrApiBaseInterceptor, tokenInterceptor, sessionHandlerInterceptor]),
     ),
     provideAnimationsAsync(),
   ],

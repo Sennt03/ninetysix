@@ -5,6 +5,14 @@ import { PrismaService } from '../../database/prisma/prisma.service';
 /** Máximo de colecciones en la portada (el resto se verá en la pestaña de catálogo). */
 const COLLECTIONS_LIMIT = 6;
 
+/**
+ * Tope duro de productos por listado (PLP/categoría/destacados). Evita que un
+ * catálogo grande cargue TODO en RAM y se serialice entero en el HTML del SSR
+ * (cada render retiene el array completo). Si algún día hace falta más, conviene
+ * paginar de verdad (cursor/offset) en vez de subir esta cota.
+ */
+const PRODUCTS_HARD_CAP = 300;
+
 /** Tarjeta de producto para la tienda pública (NUNCA incluye costPrice). */
 export interface StoreProductCard {
   id: string;
@@ -200,6 +208,7 @@ export class StorefrontService {
       where,
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
       include: CARD_INCLUDE,
+      take: PRODUCTS_HARD_CAP,
     });
     return products.map((p) => this.toCard(p));
   }
@@ -210,6 +219,7 @@ export class StorefrontService {
       where: { status: ProductStatus.active, featured: true },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
       include: CARD_INCLUDE,
+      take: PRODUCTS_HARD_CAP,
     });
     return products.map((p) => this.toCard(p));
   }
@@ -232,6 +242,7 @@ export class StorefrontService {
       },
       orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
       include: CARD_INCLUDE,
+      take: PRODUCTS_HARD_CAP,
     });
 
     return {

@@ -47,6 +47,28 @@ PUBLIC_URL=https://ninetysixshop.com
 ```
 Genera los secretos: `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`
 
+### 1.5 Límites de recursos (Hostinger/CloudLinux) — EVITA que se caiga
+Una sola app Node sirve API + SSR + Prisma + sharp. Sin topes, el proceso crece
+hasta superar el límite de RAM/procesos de la cuenta compartida (LVE) y el kernel
+lo **mata** (síntoma: `spawn EAGAIN`, 502, "la página no abre"). Pon estos topes:
+
+**En hPanel → Node.js → Environment variables** (NO solo en `.env`: V8 y libuv las
+leen al arrancar, antes de que dotenv cargue el `.env`):
+```
+NODE_OPTIONS=--max-old-space-size=768
+UV_THREADPOOL_SIZE=2
+TOKIO_WORKER_THREADS=2
+```
+**En el `DATABASE_URL` del `.env`** añade el sufijo del pool (Prisma abre por
+defecto (cores*2)+1 conexiones → decenas en hosting compartido):
+```
+...@127.0.0.1:3306/NOMBRE_BD?connection_limit=3&pool_timeout=20
+```
+> Plan actual: 3 GB de RAM de cuenta, 2 núcleos CPU, 120 procesos máx. Con eso 768
+> es holgado (puedes ir a 1024 si esta es tu única app pesada). Si alguna vez se
+> cae por RAM, bájalo: un tope menor fuerza el GC antes de que el kernel mate el
+> proceso. Tras cambiar variables: **Restart** la app en hPanel.
+
 > Si el dominio no es `ninetysixshop.com`, cámbialo en
 > `Frontend/src/environments/environment.production.ts` y en
 > `Frontend/angular.json` → `security.allowedHosts`.
