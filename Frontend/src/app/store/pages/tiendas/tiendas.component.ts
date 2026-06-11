@@ -93,7 +93,7 @@ export class TiendasComponent {
       mapEmbed: this.sanitizer.bypassSecurityTrustResourceUrl(
         `https://www.google.com/maps?q=${q}&output=embed`,
       ),
-      mapLink: `https://www.google.com/maps/search/?api=1&query=${q}`,
+      mapLink: s.mapUrl ?? `https://www.google.com/maps/search/?api=1&query=${q}`,
     };
   });
 
@@ -101,7 +101,7 @@ export class TiendasComponent {
     this.seo.update({
       title: 'Ubicaciones · Ninetysix',
       description:
-        'Visita nuestras tiendas Ninetysix en Medellín. Direcciones, horarios, teléfonos y mapa.',
+        'Visita nuestra tienda Ninetysix en Quito, Ecuador. Dirección, horarios, teléfono y mapa.',
     });
   }
 }

@@ -32,14 +32,16 @@
 }
 
 .hd__brand {
-  font-family: var(--st-font-display);
-  font-size: 1.32rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
   color: inherit;
   text-decoration: none;
   white-space: nowrap;
+}
+.hd__logo {
+  display: block;
+  height: 40px;
+  width: auto;
 }
 .hd__brand-accent {
   color: var(--st-lime);
@@ -212,11 +214,13 @@
   border-bottom: 1px solid var(--st-line);
 }
 .mob__brand {
-  font-family: var(--st-font-display);
-  font-size: 1.18rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+.mob__logo {
+  display: block;
+  height: 32px;
+  width: auto;
 }
 .mob__nav {
   display: flex;

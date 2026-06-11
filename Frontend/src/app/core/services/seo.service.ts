@@ -13,7 +13,7 @@ export interface SeoConfig {
 }
 
 const SITE_NAME = 'Ninetysix';
-const LOCALE = 'es_PE';
+const LOCALE = 'es_EC';
 
 /**
  * Servicio SEO centralizado (SSR-safe): título, meta description, canonical,

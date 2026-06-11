@@ -1,16 +1,17 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  BRAND_LOGO,
   STORE_CITY,
-  STORE_EMAIL,
   STORE_INSTAGRAM,
   STORE_NAV,
   STORE_PHONE_DISPLAY,
+  STORE_TIKTOK,
   STORE_WHATSAPP,
 } from '../../shared/store.config';
 
-/** Pie de página de la tienda (streetwear dark): marca, navegación, contacto,
- * redes y suscripción a la newsletter. */
+/** Pie de página de la tienda (streetwear dark): marca, navegación, contacto y
+ * redes (TikTok, Instagram y WhatsApp). */
 @Component({
   selector: 'app-store-footer',
   imports: [RouterLink],
@@ -19,7 +20,9 @@ import {
     <footer class="ft">
       <div class="ft__inner">
         <div class="ft__brand-col">
-          <a class="ft__brand" routerLink="/">Ninety<span class="ft__brand-accent">six</span></a>
+          <a class="ft__brand" routerLink="/" aria-label="Ninetysix — Inicio">
+            <img class="ft__logo" [src]="logo" alt="Ninetysix" width="120" height="91" />
+          </a>
           <p class="ft__tagline">
             Streetwear premium con actitud sin límites. Ediciones limitadas para la calle.
           </p>
@@ -31,9 +34,9 @@ import {
                 <circle cx="17.5" cy="6.5" r="1.1" fill="currentColor" />
               </svg>
             </a>
-            <a class="ft__social-btn" href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+            <a class="ft__social-btn" [href]="tiktok" target="_blank" rel="noopener" aria-label="TikTok">
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                <path d="M14 9V7c0-1 .5-1.5 1.5-1.5H17V2.5h-2.5C12 2.5 10.5 4 10.5 6.8V9H8.5v3h2v9.5h3.5V12H17l.5-3H14z"
+                <path d="M16 3c.3 2.2 1.8 3.9 4 4.2v3c-1.5 0-2.9-.5-4-1.3V15a6 6 0 11-6-6c.34 0 .67.03 1 .09v3.04A3 3 0 1013 15V3h3z"
                   fill="currentColor" />
               </svg>
             </a>
@@ -59,34 +62,20 @@ import {
           <h3 class="ft__title">Contacto</h3>
           <ul class="ft__list">
             <li><a class="ft__link" [href]="'tel:' + phoneRaw">{{ phone }}</a></li>
-            <li><a class="ft__link" [href]="'mailto:' + email">{{ email }}</a></li>
             <li><span class="ft__muted">{{ city }}</span></li>
           </ul>
         </div>
 
         <div class="ft__col ft__col--news">
-          <h3 class="ft__title">Newsletter</h3>
-          <p class="ft__news-text">Suscríbete y entérate de cada drop antes que nadie.</p>
-          @if (subscribed()) {
-            <p class="ft__news-ok">¡Gracias! Te avisaremos del próximo drop.</p>
-          } @else {
-            <form class="ft__news-form" (submit)="subscribe($event)">
-              <input
-                class="ft__news-input"
-                type="email"
-                name="email"
-                required
-                placeholder="tu@email.com"
-                aria-label="Tu correo electrónico"
-              />
-              <button class="ft__news-btn" type="submit" aria-label="Suscribirme">
-                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              </button>
-            </form>
-          }
+          <h3 class="ft__title">¿Hablamos?</h3>
+          <p class="ft__news-text">Escríbenos por WhatsApp para pedidos, tallas y novedades de cada drop.</p>
+          <a class="ft__wa-link" [href]="whatsapp" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M3.5 20.5l1.3-4.6A8 8 0 1112 20a8 8 0 01-4-1.1l-4.5 1.6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+              <path d="M9 8.5c.2 2.5 2 4.3 4.5 4.5.6 0 1.2-.6 1.2-1.2l-1.6-.8-.8.8a4 4 0 01-1.6-1.6l.8-.8-.8-1.6c-.6 0-1.3.6-1.3 1.2z" fill="currentColor" />
+            </svg>
+            Escríbenos por WhatsApp
+          </a>
         </div>
       </div>
 
@@ -101,16 +90,11 @@ import {
 export class StoreFooterComponent {
   readonly year = new Date().getFullYear();
   readonly nav = STORE_NAV;
+  readonly logo = BRAND_LOGO;
   readonly whatsapp = STORE_WHATSAPP;
   readonly instagram = STORE_INSTAGRAM;
-  readonly email = STORE_EMAIL;
+  readonly tiktok = STORE_TIKTOK;
   readonly phone = STORE_PHONE_DISPLAY;
   readonly phoneRaw = STORE_PHONE_DISPLAY.replace(/\s+/g, '');
   readonly city = STORE_CITY;
-  readonly subscribed = signal(false);
-
-  subscribe(event: Event): void {
-    event.preventDefault();
-    this.subscribed.set(true);
-  }
 }

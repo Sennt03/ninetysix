@@ -4,6 +4,11 @@ import { SeoService } from '@services/seo.service';
 import { CartDrawerComponent } from '../components/cart-drawer/cart-drawer.component';
 import { StoreFooterComponent } from '../components/store-footer/store-footer.component';
 import { StoreHeaderComponent } from '../components/store-header/store-header.component';
+import {
+  STORE_INSTAGRAM,
+  STORE_TIKTOK,
+  STORE_WHATSAPP_NUMBER,
+} from '../shared/store.config';
 
 /**
  * Layout de la tienda pública: cabecera + contenido + pie, y define los tokens
@@ -37,16 +42,12 @@ export class StoreLayoutComponent {
         '@type': 'Organization',
         name: 'Ninetysix',
         url: origin,
-        sameAs: [
-          'https://instagram.com/ninetysix',
-          'https://facebook.com',
-          'https://tiktok.com/@ninetysix',
-        ],
+        sameAs: [STORE_INSTAGRAM, STORE_TIKTOK],
         contactPoint: {
           '@type': 'ContactPoint',
-          telephone: '+51987654321',
+          telephone: `+${STORE_WHATSAPP_NUMBER}`,
           contactType: 'customer service',
-          areaServed: 'PE',
+          areaServed: 'EC',
         },
       },
       'global',

@@ -3,9 +3,9 @@ import { RevealOnScrollDirective } from '../../../shared/reveal-on-scroll.direct
 import { STORE_INSTAGRAM } from '../../../shared/store.config';
 
 /**
- * Sección "Follow the Movement": grid editorial de Instagram. Cada imagen enlaza
- * al perfil externo; al pasar el cursor aparece un overlay oscuro con un icono de
- * cámara. Las imágenes son de marca (placeholder por ahora).
+ * Sección de Instagram: grid editorial con fotos reales de la marca. Cada imagen
+ * enlaza a su publicación en Instagram; al pasar el cursor aparece un overlay
+ * oscuro con un icono de cámara.
  */
 @Component({
   selector: 'app-instagram-section',
@@ -15,7 +15,7 @@ import { STORE_INSTAGRAM } from '../../../shared/store.config';
     <section id="instagram" class="ig">
       <div class="ig__inner">
         <header class="ig__head" appReveal>
-          <h2 class="ig__title">Follow the <span class="ig__title-soft">Movement</span></h2>
+          <h2 class="ig__title">Ya revisaste nuestro <span class="ig__title-hl">IG</span>?<br />Y estas las fotos</h2>
           <a class="ig__all" [href]="instagram" target="_blank" rel="noopener">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <rect x="3" y="3" width="18" height="18" rx="5" stroke="currentColor" stroke-width="1.7" />
@@ -27,10 +27,10 @@ import { STORE_INSTAGRAM } from '../../../shared/store.config';
         </header>
 
         <div class="ig__grid">
-          @for (item of posts; track item.seed; let i = $index) {
+          @for (item of posts; track item.url; let i = $index) {
             <a
               class="ig__item"
-              [href]="instagram"
+              [href]="item.url"
               target="_blank"
               rel="noopener"
               appReveal
@@ -39,7 +39,7 @@ import { STORE_INSTAGRAM } from '../../../shared/store.config';
             >
               <img
                 class="ig__img"
-                [src]="'https://picsum.photos/seed/' + item.seed + '/600/600'"
+                [src]="item.img"
                 [alt]="item.alt"
                 loading="lazy"
                 decoding="async"
@@ -88,6 +88,9 @@ import { STORE_INSTAGRAM } from '../../../shared/store.config';
     .ig__title-soft {
       color: transparent;
       -webkit-text-stroke: 1.5px var(--st-line-strong);
+    }
+    .ig__title-hl {
+      color: var(--st-lime);
     }
     .ig__all {
       display: inline-flex;
@@ -169,11 +172,30 @@ import { STORE_INSTAGRAM } from '../../../shared/store.config';
 export class InstagramSectionComponent {
   readonly instagram = STORE_INSTAGRAM;
   readonly posts = [
-    { seed: 'ninetysix-ig-1', alt: 'Look urbano Ninetysix' },
-    { seed: 'ninetysix-ig-2', alt: 'Conjunto streetwear Ninetysix' },
-    { seed: 'ninetysix-ig-3', alt: 'Editorial de calle Ninetysix' },
-    { seed: 'ninetysix-ig-4', alt: 'Prenda oversized Ninetysix' },
-    { seed: 'ninetysix-ig-5', alt: 'Detalle de colección Ninetysix' },
-    { seed: 'ninetysix-ig-6', alt: 'Outfit completo Ninetysix' },
+    {
+      img: '/img/ig-1.jpeg',
+      url: 'https://www.instagram.com/p/DZIVSkTkRke/?img_index=5&igsh=NG92ZGltdjV1Y2J6',
+      alt: 'Look urbano Ninetysix',
+    },
+    {
+      img: '/img/ig-2.png',
+      url: 'https://www.instagram.com/p/DZD5yEiEVd8/?img_index=1&igsh=anZ5cnlvejdsd3Vl',
+      alt: 'Conjunto streetwear Ninetysix',
+    },
+    {
+      img: '/img/ig-3.png',
+      url: 'https://www.instagram.com/reel/DY-tU2Rx8LN/?igsh=MWUyYWluNXFhbGlkZQ==',
+      alt: 'Reel de estilo Ninetysix',
+    },
+    {
+      img: '/img/ig-4.png',
+      url: 'https://www.instagram.com/reel/DY8fNp-xZxS/?igsh=MTBtcWIxajE4bXpoMA==',
+      alt: 'Reel de looks Ninetysix',
+    },
+    {
+      img: '/img/ig-5.png',
+      url: 'https://www.instagram.com/p/DYhgernkYYo/?img_index=3&igsh=cGt3OXd0amZ3dzZk',
+      alt: 'Editorial de calle Ninetysix',
+    },
   ];
 }

@@ -112,12 +112,12 @@ export class ResenasComponent {
   readonly stars = Array.from({ length: 5 });
 
   readonly reviews: Review[] = [
-    { name: 'Carlos Mendoza', location: 'Lima', product: 'Traje Negro Clásico', text: 'La calidad de las prendas es excepcional. Cada pieza que he comprado ha superado mis expectativas. La atención al detalle y los acabados son de primer nivel.' },
-    { name: 'Roberto Silva', location: 'Miraflores', product: 'Camisa Premium Azul', text: 'Elegancia y confort en cada prenda. Mi marca favorita de moda masculina. Los diseños son atemporales y la calidad inigualable.' },
-    { name: 'Diego Vargas', location: 'San Isidro', product: 'Conjunto Gris Ejecutivo', text: 'Atención personalizada y productos de primera. El equipo realmente se preocupa por encontrar las prendas perfectas para cada ocasión.' },
-    { name: 'Andrés Torres', location: 'Surco', product: 'Chaqueta Negra Premium', text: 'Desde que descubrí Ninetysix no compro en otro lugar. Calidad premium y un servicio impecable de principio a fin.' },
-    { name: 'Javier Ríos', location: 'La Molina', product: 'Camisa Premium Azul', text: 'Cortes perfectos y telas de primera. Recibo cumplidos cada vez que uso sus prendas. Totalmente recomendado.' },
-    { name: 'Martín Castro', location: 'Barranco', product: 'Traje Negro Clásico', text: 'Profesionalismo y elegancia en cada compra. La experiencia Ninetysix es de otro nivel.' },
+    { name: 'Carlos Mendoza', location: 'Quito', product: 'Oversized Tech Jacket', text: 'La calidad de las prendas es excepcional. Cada pieza que he comprado ha superado mis expectativas. La atención al detalle y los acabados son de primer nivel.' },
+    { name: 'Roberto Silva', location: 'Cumbayá', product: 'Hoodie Premium', text: 'Estilo y confort en cada prenda. Mi marca favorita de streetwear. Los diseños son únicos y la calidad inigualable.' },
+    { name: 'Diego Vargas', location: 'La Carolina', product: 'Conjunto Urbano', text: 'Atención personalizada y productos de primera. El equipo realmente se preocupa por encontrar las prendas perfectas para cada ocasión.' },
+    { name: 'Andrés Torres', location: 'Tumbaco', product: 'Puffer Jacket', text: 'Desde que descubrí Ninetysix no compro en otro lugar. Calidad premium y un servicio impecable de principio a fin.' },
+    { name: 'Javier Ríos', location: 'La Floresta', product: 'Hoodie Premium', text: 'Cortes perfectos y telas de primera. Recibo cumplidos cada vez que uso sus prendas. Totalmente recomendado.' },
+    { name: 'Martín Castro', location: 'Los Chillos', product: 'Oversized Tech Jacket', text: 'Calidad y estilo en cada compra. La experiencia Ninetysix es de otro nivel.' },
   ];
 
   readonly active = signal(0);
@@ -129,7 +129,7 @@ export class ResenasComponent {
     this.seo.update({
       title: 'Reseñas · Ninetysix',
       description:
-        'Testimonios y opiniones reales de los clientes de Ninetysix sobre nuestra moda masculina premium.',
+        'Testimonios y opiniones reales de los clientes de Ninetysix sobre nuestro streetwear premium.',
     });
 
     afterNextRender(() => {

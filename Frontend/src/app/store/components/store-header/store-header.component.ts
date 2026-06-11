@@ -12,7 +12,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CartService } from '@services/cart.service';
 import { filter } from 'rxjs';
-import { STORE_NAV, STORE_WHATSAPP } from '../../shared/store.config';
+import { BRAND_LOGO, STORE_NAV, STORE_WHATSAPP } from '../../shared/store.config';
 
 /**
  * Cabecera de la tienda. Es fija. En páginas con hero es transparente sobre él y
@@ -27,7 +27,7 @@ import { STORE_NAV, STORE_WHATSAPP } from '../../shared/store.config';
     <header class="hd" [class.hd--solid]="!transparent()" [class.hd--menu-open]="menuOpen()">
       <div class="hd__inner">
         <a class="hd__brand" routerLink="/" aria-label="Ninetysix — Inicio" (click)="closeMenu()">
-          Ninety<span class="hd__brand-accent">six</span>
+          <img class="hd__logo" [src]="logo" alt="Ninetysix" width="120" height="91" />
         </a>
 
         <nav class="hd__nav" aria-label="Navegación principal">
@@ -95,7 +95,7 @@ import { STORE_NAV, STORE_WHATSAPP } from '../../shared/store.config';
       <button type="button" class="mob__backdrop" aria-label="Cerrar menú" (click)="closeMenu()"></button>
       <aside class="mob__panel" role="dialog" aria-label="Menú">
         <div class="mob__head">
-          <span class="mob__brand">Ninetysix</span>
+          <span class="mob__brand"><img class="mob__logo" [src]="logo" alt="Ninetysix" width="100" height="76" /></span>
           <button type="button" class="hd__icon-btn" aria-label="Cerrar menú" (click)="closeMenu()">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.7"
@@ -146,6 +146,7 @@ export class StoreHeaderComponent {
   });
 
   readonly nav = STORE_NAV;
+  readonly logo = BRAND_LOGO;
   readonly whatsapp = STORE_WHATSAPP;
 
   constructor() {

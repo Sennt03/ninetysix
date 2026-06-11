@@ -29,6 +29,14 @@
 .ft__brand-accent {
   color: var(--st-lime);
 }
+.ft__brand {
+  display: inline-block;
+}
+.ft__logo {
+  display: block;
+  height: 64px;
+  width: auto;
+}
 .ft__tagline {
   margin: 14px 0 18px;
   max-width: 32ch;
@@ -95,11 +103,34 @@
   height: 19px;
 }
 
-/* Newsletter */
+/* CTA WhatsApp */
 .ft__news-text {
   margin: 0 0 14px;
   font-size: 0.92rem;
   line-height: 1.5;
+}
+.ft__wa-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--st-lime);
+  color: var(--st-lime-ink);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 14px 34px -16px var(--st-lime-glow);
+  transition: transform 0.25s ease, filter 0.25s ease, box-shadow 0.25s ease;
+}
+.ft__wa-link svg {
+  width: 18px;
+  height: 18px;
+}
+.ft__wa-link:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+  box-shadow: 0 20px 44px -16px var(--st-lime-glow);
 }
 .ft__news-form {
   display: flex;

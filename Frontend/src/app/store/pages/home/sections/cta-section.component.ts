@@ -12,7 +12,7 @@ import { RevealOnScrollDirective } from '../../../shared/reveal-on-scroll.direct
       <div class="cta__banner" appReveal>
         <img
           class="cta__img"
-          src="https://picsum.photos/seed/ninetysix-essentials/1400/900"
+          src="/img/home-cta.jpeg"
           alt="Colección esencial Ninetysix"
           loading="lazy"
           decoding="async"
@@ -58,7 +58,7 @@ import { RevealOnScrollDirective } from '../../../shared/reveal-on-scroll.direct
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center 30%;
+      object-position: center 18%;
       transition: transform 1.1s cubic-bezier(0.22, 0.61, 0.36, 1);
     }
     .cta__banner:hover .cta__img {

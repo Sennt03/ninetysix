@@ -1,10 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
 import { formatPrice } from '../../store/shared/price.pipe';
+import { STORE_WHATSAPP_NUMBER } from '../../store/shared/store.config';
 
 const CART_KEY = 'ninetysix_cart';
 /** Número de WhatsApp de la tienda para finalizar el pedido. */
-const WHATSAPP_NUMBER = '573001234567';
+const WHATSAPP_NUMBER = STORE_WHATSAPP_NUMBER;
 
 export interface CartItem {
   /** Clave única de la línea (id de variante). */

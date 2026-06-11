@@ -24,7 +24,7 @@ import { RouterLink } from '@angular/router';
           </span>
 
           <h1 class="hero__title">
-            STREET<br />WEAR <span class="hero__hl">WITHOUT</span><br />LIMITS
+            No lo vamos<br />a <span class="hero__hl">explicar.</span><br />Solo míralo.
           </h1>
 
           <p class="hero__lead">
@@ -34,7 +34,7 @@ import { RouterLink } from '@angular/router';
 
           <div class="hero__actions">
             <a class="hbtn hbtn--lime" routerLink="/catalogo">
-              Explorar ahora
+              Catálogo
               <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round" />
@@ -63,7 +63,7 @@ import { RouterLink } from '@angular/router';
           <div class="hero__card">
             <img
               class="hero__photo"
-              src="https://picsum.photos/seed/ninetysix-hero/760/940"
+              src="/img/home-banner.jpeg"
               alt="Look streetwear Ninetysix de la nueva temporada"
               loading="eager"
               decoding="async"

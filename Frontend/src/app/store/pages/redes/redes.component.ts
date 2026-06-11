@@ -32,11 +32,6 @@ import { STORE_SOCIALS } from '../../shared/store.config';
                     <path d="M16 3c.3 2.2 1.8 3.9 4 4.2v3c-1.5 0-2.9-.5-4-1.3V15a6 6 0 11-6-6c.34 0 .67.03 1 .09v3.04A3 3 0 1013 15V3h3z" fill="currentColor" />
                   </svg>
                 }
-                @case ('facebook') {
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M14 9V7c0-1 .5-1.5 1.5-1.5H17V2.5h-2.5C12 2.5 10.5 4 10.5 6.8V9H8.5v3h2v9.5h3.5V12H17l.5-3H14z" fill="currentColor" />
-                  </svg>
-                }
                 @case ('whatsapp') {
                   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M3.5 20.5l1.3-4.6A8 8 0 1112 20a8 8 0 01-4-1.1l-4.5 1.6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
@@ -126,7 +121,6 @@ import { STORE_SOCIALS } from '../../shared/store.config';
 
     .sc[data-net='instagram'] { --net: #ff4d8d; }
     .sc[data-net='tiktok'] { --net: #e7e9e4; }
-    .sc[data-net='facebook'] { --net: #4d8dff; }
     .sc[data-net='whatsapp'] { --net: #25d366; }
 
     @media (min-width: 720px) {
@@ -142,7 +136,7 @@ export class RedesComponent {
   constructor() {
     this.seo.update({
       title: 'Redes · Ninetysix',
-      description: 'Síguenos en Instagram, TikTok, Facebook y WhatsApp. Únete a la comunidad NINETY SIX.',
+      description: 'Síguenos en Instagram, TikTok y WhatsApp. Únete a la comunidad NINETY SIX.',
     });
   }
 }

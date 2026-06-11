@@ -25,21 +25,21 @@ interface Value {
   template: `
     <app-page-hero
       title="Nuestra Historia"
-      subtitle="Más de dos décadas vistiendo al hombre moderno"
+      subtitle="Streetwear con actitud: desde la calle, para la calle"
     />
 
     <!-- Intro -->
     <section class="intro">
       <div class="intro__inner" appReveal>
         <p>
-          Ninetysix nació en 2005 con una visión clara: ofrecer al hombre moderno prendas que combinen
-          elegancia, calidad y funcionalidad. Desde nuestros inicios, nos hemos comprometido a crear
-          piezas atemporales que reflejen sofisticación y estilo.
+          Ninetysix nació con una visión clara: llevar el streetwear premium a la calle con prendas
+          que combinan diseño urbano, calidad real y actitud sin límites. Desde nuestros inicios, nos
+          hemos comprometido a crear ediciones limitadas con identidad propia.
         </p>
         <p>
-          A lo largo de los años, hemos evolucionado junto con nuestros clientes, adaptándonos a las
-          nuevas tendencias sin perder nuestra esencia: la búsqueda incansable de la excelencia en
-          cada detalle.
+          A lo largo del camino hemos evolucionado junto con nuestra comunidad, adaptándonos a cada
+          nueva tendencia sin perder nuestra esencia: la búsqueda incansable de la excelencia en cada
+          detalle.
         </p>
       </div>
     </section>
@@ -76,7 +76,7 @@ interface Value {
             <h3>Misión</h3>
           </header>
           <p>
-            Proporcionar al hombre moderno prendas de alta calidad que reflejen elegancia, confianza y
+            Vestir a la cultura urbana con prendas de alta calidad que reflejen actitud, confianza y
             estilo, utilizando los mejores materiales y procesos de confección.
           </p>
         </article>
@@ -92,8 +92,8 @@ interface Value {
             <h3>Visión</h3>
           </header>
           <p>
-            Ser la marca líder en moda masculina premium, reconocida por nuestra calidad excepcional,
-            diseño atemporal y compromiso con la satisfacción del cliente.
+            Ser la marca líder en streetwear premium, reconocida por nuestra calidad excepcional,
+            diseño con identidad y compromiso con la satisfacción del cliente.
           </p>
         </article>
       </div>
@@ -144,11 +144,11 @@ export class HistoriaComponent {
   private readonly seo = inject(SeoService);
 
   readonly milestones: Milestone[] = [
-    { year: '2005', icon: '🚀', title: 'Fundación', text: 'Nace Ninetysix con la visión de revolucionar la moda masculina' },
-    { year: '2010', icon: '🏢', title: 'Primera Tienda', text: 'Apertura de nuestra primera tienda física en Lima' },
+    { year: '2005', icon: '🚀', title: 'Fundación', text: 'Nace Ninetysix con la visión de revolucionar el streetwear' },
+    { year: '2010', icon: '🏢', title: 'Primera Tienda', text: 'Apertura de nuestra primera tienda física en Quito' },
     { year: '2015', icon: '📈', title: 'Expansión', text: 'Expandimos nuestra presencia a nivel nacional' },
     { year: '2020', icon: '💻', title: 'Presencia Digital', text: 'Lanzamiento de nuestra plataforma de comercio electrónico' },
-    { year: '2025', icon: '👑', title: 'Consolidación', text: 'Consolidación como referente en moda masculina premium' },
+    { year: '2025', icon: '👑', title: 'Consolidación', text: 'Consolidación como referente en streetwear premium' },
   ];
 
   readonly values: Value[] = [
@@ -161,7 +161,7 @@ export class HistoriaComponent {
     this.seo.update({
       title: 'Nuestra Historia · Ninetysix',
       description:
-        'La historia de Ninetysix: más de dos décadas creando moda masculina premium. Conoce nuestra trayectoria, misión, visión y valores.',
+        'La historia de Ninetysix: streetwear premium con identidad propia. Conoce nuestra trayectoria, misión, visión y valores.',
     });
   }
 }

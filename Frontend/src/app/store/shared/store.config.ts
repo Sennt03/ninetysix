@@ -3,17 +3,24 @@
 /** Imagen de marca usada en los heros (servida desde `public/img/`). */
 export const HERO_IMAGE = '/img/hero.webp';
 
-// --- Contacto / redes (datos de negocio) ---
-export const STORE_WHATSAPP_NUMBER = '573001234567';
-export const STORE_WHATSAPP = `https://wa.me/${STORE_WHATSAPP_NUMBER}`;
-export const STORE_PHONE_DISPLAY = '+57 300 123 4567';
-export const STORE_EMAIL = 'info@ninetysix.co';
-export const STORE_CITY = 'Medellín, Colombia';
-export const STORE_INSTAGRAM = 'https://instagram.com/ninetysix.co';
-export const STORE_TIKTOK = 'https://tiktok.com/@ninetysix';
-export const STORE_FACEBOOK = 'https://facebook.com';
+/** Logo de marca (versión blanca para fondos oscuros), en `public/img/`. */
+export const BRAND_LOGO = '/img/logo-blanco.png';
 
-export type SocialIcon = 'instagram' | 'tiktok' | 'facebook' | 'whatsapp';
+// --- Contacto / redes (datos de negocio) ---
+export const STORE_WHATSAPP_NUMBER = '593983474862';
+/** Enlace corto "click to chat" de WhatsApp Business (botones genéricos). */
+export const STORE_WHATSAPP = 'https://wa.me/message/N3TR75Q2YNDVO1';
+export const STORE_PHONE_DISPLAY = '+593 98 347 4862';
+export const STORE_CITY = 'Quito, Ecuador';
+export const STORE_INSTAGRAM = 'https://www.instagram.com/ninetysix96_2026';
+export const STORE_TIKTOK = 'https://www.tiktok.com/@ninetysix96822?_r=1&_t=ZS-976sqHuYqjE';
+
+/** Enlace de WhatsApp con un mensaje prellenado (usa el número, no el short link). */
+export function whatsappLink(text: string): string {
+  return `https://wa.me/${STORE_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
+export type SocialIcon = 'instagram' | 'tiktok' | 'whatsapp';
 
 export interface StoreSocial {
   name: string;
@@ -24,11 +31,11 @@ export interface StoreSocial {
   icon: SocialIcon;
 }
 
-/** Redes sociales (página Redes + footer). */
+/** Redes sociales (página Redes + footer). Solo TikTok, Instagram y WhatsApp. */
 export const STORE_SOCIALS: StoreSocial[] = [
   {
     name: 'Instagram',
-    handle: '@ninetysix.co',
+    handle: '@ninetysix96_2026',
     desc: 'Outfits editoriales, drops exclusivos y behind the scenes.',
     url: STORE_INSTAGRAM,
     cta: 'Seguir',
@@ -36,26 +43,18 @@ export const STORE_SOCIALS: StoreSocial[] = [
   },
   {
     name: 'TikTok',
-    handle: '@ninetysix',
+    handle: '@ninetysix96822',
     desc: 'Videos de estilo, lookbooks y drops en tiempo real.',
     url: STORE_TIKTOK,
     cta: 'Seguir',
     icon: 'tiktok',
   },
   {
-    name: 'Facebook',
-    handle: 'NINETY SIX Official',
-    desc: 'Comunidad, eventos y novedades de la marca.',
-    url: STORE_FACEBOOK,
-    cta: 'Seguir',
-    icon: 'facebook',
-  },
-  {
     name: 'WhatsApp',
     handle: STORE_PHONE_DISPLAY,
     desc: 'Pedidos, consultas y atención personalizada.',
     url: STORE_WHATSAPP,
-    cta: 'Seguir',
+    cta: 'Escribir',
     icon: 'whatsapp',
   },
 ];
@@ -67,29 +66,23 @@ export interface StoreLocation {
   area: string;
   hours: string[];
   phoneDisplay: string;
-  /** Consulta para el mapa/direcciones de Google Maps. */
+  /** Consulta para el mapa embebido de Google Maps. */
   mapQuery: string;
+  /** Enlace directo (opcional) a Google Maps para el botón "Ver en Maps". */
+  mapUrl?: string;
 }
 
 /** Tiendas físicas (página Ubicaciones). */
 export const STORE_LOCATIONS: StoreLocation[] = [
   {
-    name: 'Tienda Principal — El Centro',
+    name: 'Tienda Principal — Centro',
     tag: 'Flagship',
-    address: 'Calle 50 #42-15, Local 201',
-    area: 'Medellín, Antioquia',
-    hours: ['Lun–Sáb: 10:00am – 8:00pm', 'Dom: 11:00am – 6:00pm'],
-    phoneDisplay: '+57 300 123 4567',
-    mapQuery: 'Calle 50 #42-15, Medellín, Antioquia, Colombia',
-  },
-  {
-    name: 'Pop-Up — El Poblado',
-    tag: 'Pop-up',
-    address: 'Carrera 37 #8A-42, Piso 2',
-    area: 'Medellín, Antioquia',
-    hours: ['Jue–Sáb: 12:00pm – 9:00pm', 'Dom: 12:00pm – 7:00pm'],
-    phoneDisplay: '+57 300 765 4321',
-    mapQuery: 'Carrera 37 #8A-42, El Poblado, Medellín, Antioquia, Colombia',
+    address: 'C.C. Hermano Miguel, Locales 915–925, Piso 2, Pasillo 11B',
+    area: 'Quito, Ecuador',
+    hours: ['Lun–Sáb: 9:00am – 6:00pm', 'Dom: 10:00am – 5:00pm'],
+    phoneDisplay: STORE_PHONE_DISPLAY,
+    mapQuery: 'Centro Comercial Hermano Miguel, Quito, Ecuador',
+    mapUrl: 'https://maps.app.goo.gl/AR67yPGEgd2TB2289?g_st=ic',
   },
 ];
 
