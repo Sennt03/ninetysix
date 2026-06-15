@@ -51,9 +51,10 @@ export const STORE_ROUTES: Routes = [
           import('./pages/contacto/contacto.component').then((m) => m.ContactoComponent),
       },
       {
-        path: 'historia',
+        path: 'orden',
+        data: { hero: false },
         loadComponent: () =>
-          import('./pages/historia/historia.component').then((m) => m.HistoriaComponent),
+          import('./pages/orden/orden.component').then((m) => m.OrdenComponent),
       },
       {
         path: 'resenas',

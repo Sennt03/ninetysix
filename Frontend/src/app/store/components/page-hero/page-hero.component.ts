@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { HERO_IMAGE } from '../../shared/store.config';
 
 /**
- * Hero reutilizable para páginas internas (Historia, Reseñas, Redes, Tiendas).
+ * Hero reutilizable para páginas internas (Reseñas, Redes, Tiendas).
  * Imagen de marca de fondo con overlay cálido, píldora opcional, título y subtítulo.
  * Más bajo que el hero de la portada.
  */

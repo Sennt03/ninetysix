@@ -1,11 +1,11 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Injectable, PLATFORM_ID, computed, inject, signal } from '@angular/core';
-import { formatPrice } from '../../store/shared/price.pipe';
-import { STORE_WHATSAPP_NUMBER } from '../../store/shared/store.config';
+import { environment } from '@env/environment';
+import { encodeOrder, orderWhatsappUrl } from '../../store/shared/order-link';
 
 const CART_KEY = 'ninetysix_cart';
-/** Número de WhatsApp de la tienda para finalizar el pedido. */
-const WHATSAPP_NUMBER = STORE_WHATSAPP_NUMBER;
+/** Origen público de la tienda (para construir el enlace de la orden). */
+const SITE_ORIGIN = environment.url_site.replace(/\/+$/, '');
 
 export interface CartItem {
   /** Clave única de la línea (id de variante). */
@@ -46,15 +46,20 @@ export class CartService {
     this.itemsState().reduce((sum, i) => sum + i.price * i.qty, 0),
   );
 
-  /** Enlace de WhatsApp con el pedido prellenado (incluye precios y total). */
-  readonly whatsappUrl = computed(() => {
-    const lines = this.itemsState().map((i) => {
-      const opts = i.options.map((o) => `${o.type}: ${o.value}`).join(', ');
-      return `• ${i.name}${opts ? ` (${opts})` : ''} x${i.qty} — ${formatPrice(i.price * i.qty)}`;
-    });
-    const msg = `Hola Ninetysix, quiero hacer este pedido:\n\n${lines.join('\n')}\n\nTotal: ${formatPrice(this.total())} (${this.count()} ${this.count() === 1 ? 'producto' : 'productos'})`;
-    return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-  });
+  /**
+   * Enlace a la página de orden con el pedido codificado (base64url). Es el
+   * "valor real" del pedido: contiene productos, variantes, cantidades, precios
+   * y total, reconstruibles al abrirlo.
+   */
+  readonly orderUrl = computed(
+    () => `${SITE_ORIGIN}/orden?o=${encodeOrder(this.itemsState())}`,
+  );
+
+  /**
+   * Enlace de WhatsApp con el pedido prellenado. El mensaje lista solo los
+   * productos (sin precios) y adjunta el enlace al detalle con precios y total.
+   */
+  readonly whatsappUrl = computed(() => orderWhatsappUrl(this.itemsState(), this.orderUrl()));
 
   /** Añade una línea (o suma cantidad si la variante ya está) y abre el drawer. */
   add(item: Omit<CartItem, 'qty'>, qty = 1): void {

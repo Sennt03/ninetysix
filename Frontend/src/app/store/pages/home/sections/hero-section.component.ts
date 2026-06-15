@@ -40,7 +40,7 @@ import { RouterLink } from '@angular/router';
                   stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
-            <a class="hbtn hbtn--ghost" routerLink="/historia">Nuestra historia</a>
+            <a class="hbtn hbtn--ghost" routerLink="/destacados">Ver destacados</a>
           </div>
 
           <dl class="hero__stats">
@@ -78,7 +78,7 @@ import { RouterLink } from '@angular/router';
               4.9 · +2K reseñas
             </span>
 
-            <span class="hero__chip hero__chip--mid">Envío gratis a todo el país</span>
+            <span class="hero__chip hero__chip--mid">Pago contra entrega a todo el país</span>
 
             <div class="hero__drop">
               <div class="hero__drop-info">

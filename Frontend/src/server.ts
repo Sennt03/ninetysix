@@ -54,7 +54,7 @@ app.get('/sitemap.xml', async (req, res, next) => {
         categories: { slug: string; updatedAt: string }[];
       };
     };
-    const staticPaths = ['/', '/catalogo', '/historia', '/resenas', '/redes', '/tiendas'];
+    const staticPaths = ['/', '/catalogo', '/resenas', '/redes', '/tiendas'];
     const entries: { loc: string; lastmod?: string }[] = [
       ...staticPaths.map((p) => ({ loc: base + p })),
       ...json.data.categories.map((c) => ({
