@@ -1,0 +1,1 @@
+import{nb as i}from"./chunk-NEDMHCQN.js";var o="$";function m(n){if(n==null)return"";let r=n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});return`${o} ${r}`}var t=class n{transform(r){return m(r)}static \u0275fac=function(e){return new(e||n)};static \u0275pipe=i({name:"price",type:n,pure:!0})};export{t as a};

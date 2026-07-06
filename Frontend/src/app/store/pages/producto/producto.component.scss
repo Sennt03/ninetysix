@@ -295,10 +295,13 @@
   display: inline-block;
   margin-top: 16px;
   padding: 12px 24px;
+  border: 0;
+  cursor: pointer;
   border-radius: 999px;
   background: var(--st-lime);
   color: var(--st-lime-ink);
   text-decoration: none;
+  font: inherit;
   font-weight: 800;
 }
 

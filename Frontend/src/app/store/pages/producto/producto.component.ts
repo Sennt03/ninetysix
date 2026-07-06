@@ -131,11 +131,17 @@ type SelectorKind = 'color' | 'size' | 'text';
             </div>
           </div>
         </div>
-      } @else if (settled()) {
+      } @else if (outcome() === 'notfound') {
         <div class="pdp__notfound">
           <h1>Producto no encontrado</h1>
           <p>El producto que buscas no existe o ya no está disponible.</p>
           <a class="pdp__back" routerLink="/catalogo">Volver al catálogo</a>
+        </div>
+      } @else if (outcome() === 'error') {
+        <div class="pdp__notfound">
+          <h1>No pudimos cargar el producto</h1>
+          <p>Puede ser una conexión lenta o el servidor está despertando. Inténtalo de nuevo.</p>
+          <button type="button" class="pdp__back" (click)="retry()">Reintentar</button>
         </div>
       } @else {
         <div class="pdp__inner pdp__loading" aria-hidden="true">
@@ -163,7 +169,12 @@ export class ProductoComponent {
   });
 
   readonly product = computed(() => this.storefront.product(this.slug())());
-  readonly settled = computed(() => this.storefront.productSettled(this.slug())());
+  readonly outcome = computed(() => this.storefront.productOutcome(this.slug())());
+
+  /** Reintenta la carga tras un fallo transitorio (servidor lento/despertando). */
+  retry(): void {
+    this.storefront.loadProduct(this.slug());
+  }
 
   /** Selección de opciones del usuario (vacía → se usa la variante por defecto). */
   private readonly userSelection = signal<Record<string, string>>({});

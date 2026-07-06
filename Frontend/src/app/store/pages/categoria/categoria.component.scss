@@ -67,10 +67,13 @@
   display: inline-block;
   margin-top: 16px;
   padding: 12px 24px;
+  border: 0;
+  cursor: pointer;
   border-radius: 999px;
   background: var(--st-espresso);
   color: #fff;
   text-decoration: none;
+  font: inherit;
   font-weight: 600;
 }
 .plp__back:hover { background: var(--st-ink); }

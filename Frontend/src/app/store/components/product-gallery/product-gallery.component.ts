@@ -23,7 +23,7 @@ import { StoreImage } from '@models/storefront.models';
       <div class="gal__main">
         @if (current(); as img) {
           <button type="button" class="gal__open" (click)="openLightbox()" aria-label="Ampliar imagen">
-            <img [src]="img.url" [alt]="img.altText || alt()" />
+            <img [src]="img.url" [alt]="img.altText || alt()" decoding="async" />
           </button>
           <span class="gal__hint" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.7" /><path d="M21 21l-4-4M11 8v6M8 11h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
@@ -120,6 +120,31 @@ export class ProductGalleryComponent {
       const open = this.lightbox();
       if (this.isBrowser) {
         document.body.style.overflow = open ? 'hidden' : '';
+      }
+    });
+
+    // Precarga en segundo plano las imágenes grandes del producto: al cambiar de
+    // foto en la galería (o abrir el lightbox) ya están en la caché del navegador,
+    // así el cambio es instantáneo. Antes cada primer cambio disparaba la descarga
+    // del archivo grande y se notaba el tirón, sobre todo en hosting compartido.
+    effect(() => {
+      const imgs = this.images();
+      if (!this.isBrowser || imgs.length < 2) {
+        return;
+      }
+      const warm = () => {
+        for (const img of imgs) {
+          const pre = new Image();
+          pre.src = img.url;
+        }
+      };
+      const idle = (globalThis as { requestIdleCallback?: (cb: () => void) => void })
+        .requestIdleCallback;
+      // En reposo (tras pintar la portada), para no competir con la imagen visible.
+      if (typeof idle === 'function') {
+        idle(warm);
+      } else {
+        setTimeout(warm, 200);
       }
     });
   }

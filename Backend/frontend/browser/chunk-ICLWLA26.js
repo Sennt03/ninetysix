@@ -1,0 +1,1 @@
+import"./chunk-7CGTOI24.js";var e=[{path:"login",loadComponent:()=>import("./chunk-TDMXEMME.js").then(o=>o.LoginComponent)},{path:"",pathMatch:"full",redirectTo:"login"},{path:"**",redirectTo:"login"}];export{e as AUTH_ROUTES};

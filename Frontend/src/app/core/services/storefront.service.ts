@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {
   Injectable,
   PLATFORM_ID,
@@ -20,17 +20,24 @@ import {
   StoreProduct,
   StoreProductCard,
 } from '@models/storefront.models';
-import { EMPTY, catchError, finalize, map, timeout } from 'rxjs';
+import { map, timeout } from 'rxjs';
 
 const CACHE_PREFIX = 'ninetysix_sf_';
 
 /** Tope para los fetch de datos: si la API tarda más, se abandona (no cuelga el render SSR). */
 const FETCH_TIMEOUT_MS = 8000;
 
-/** Recurso reactivo con estado de carga (data + settled). */
+/** Resultado del último fetch. Distingue "no existe de verdad" (404) de un fallo
+ *  transitorio (timeout/red/5xx), para no mostrar "no encontrado" cuando en
+ *  realidad el servidor estaba lento o despertando. */
+type FetchOutcome = 'ok' | 'notfound' | 'error';
+
+/** Recurso reactivo con estado de carga (data + settled + outcome). */
 interface Resource<T> {
   data: WritableSignal<T | null>;
   settled: WritableSignal<boolean>;
+  /** null mientras carga; luego 'ok' | 'notfound' | 'error'. */
+  outcome: WritableSignal<FetchOutcome | null>;
   seeded: boolean;
 }
 
@@ -47,7 +54,32 @@ export class StorefrontService {
   private readonly http = inject(HttpClient);
   private readonly state = inject(TransferState);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  private readonly baseUrl = `${environment.url_api}/storefront`;
+  private readonly baseUrl = this.resolveBaseUrl();
+
+  /**
+   * URL base de la API de tienda.
+   * - Navegador (y dev): la URL pública configurada.
+   * - SSR en producción: **loopback interno** `http://127.0.0.1:PORT/api`. El SSR
+   *   corre en el MISMO proceso Node que la API, así que llamarse por el dominio
+   *   público obligaría a salir y volver por el proxy/TLS de Hostinger (sobrecoste
+   *   y riesgo de que el render se quede esperándose a sí mismo). El loopback lo evita.
+   */
+  private resolveBaseUrl(): string {
+    if (this.isBrowser || !environment.production) {
+      return `${environment.url_api}/storefront`;
+    }
+    const proc = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process;
+    // Válvula de escape: si el loopback 127.0.0.1:PORT no fuese alcanzable en este
+    // host, define SSR_API_BASE en el .env del servidor (ej. https://ninetysixshop.com/api)
+    // sin recompilar.
+    const override = proc?.env?.['SSR_API_BASE'];
+    if (override) {
+      return `${override.replace(/\/+$/, '')}/storefront`;
+    }
+    const port = proc?.env?.['PORT'] ?? '3000';
+    const apiPath = new URL(environment.url_api).pathname.replace(/\/+$/, ''); // p.ej. '/api'
+    return `http://127.0.0.1:${port}${apiPath}/storefront`;
+  }
 
   private readonly homeRes = this.make<StoreHome>();
   private readonly catalogRes = this.make<StoreCatalog>();
@@ -96,6 +128,9 @@ export class StorefrontService {
   categorySettled(slug: string): Signal<boolean> {
     return this.ensure(this.categoryRes, slug).settled;
   }
+  categoryOutcome(slug: string): Signal<FetchOutcome | null> {
+    return this.ensure(this.categoryRes, slug).outcome;
+  }
   loadCategory(slug: string): void {
     this.swr(`category:${slug}`, this.ensure(this.categoryRes, slug), `/categories/${slug}`);
   }
@@ -106,6 +141,9 @@ export class StorefrontService {
   }
   productSettled(slug: string): Signal<boolean> {
     return this.ensure(this.productRes, slug).settled;
+  }
+  productOutcome(slug: string): Signal<FetchOutcome | null> {
+    return this.ensure(this.productRes, slug).outcome;
   }
   loadProduct(slug: string): void {
     this.swr(`product:${slug}`, this.ensure(this.productRes, slug), `/products/${slug}`);
@@ -123,6 +161,7 @@ export class StorefrontService {
         const transferred = this.state.get(key, null as unknown as T);
         if (transferred) {
           res.data.set(transferred);
+          res.outcome.set('ok');
           this.writeCache(name, transferred);
         }
         this.state.remove(key);
@@ -130,8 +169,16 @@ export class StorefrontService {
         const cached = this.readCache<T>(name);
         if (cached) {
           res.data.set(cached);
+          res.outcome.set('ok');
         }
       }
+    }
+
+    // Reintento (cliente, sin datos aún): vuelve al estado de carga para mostrar
+    // el esqueleto en vez de dejar el mensaje de error anterior.
+    if (this.isBrowser && !res.data()) {
+      res.outcome.set(null);
+      res.settled.set(false);
     }
 
     // 2) Revalida contra la API (en SSR para el render; en cliente, en segundo plano).
@@ -140,26 +187,46 @@ export class StorefrontService {
       .pipe(
         timeout(FETCH_TIMEOUT_MS),
         map((r) => r.data),
-        catchError(() => EMPTY), // resiliencia: conserva lo sembrado si la API falla.
-        finalize(() => res.settled.set(true)),
       )
-      .subscribe((data) => {
-        if (!this.isBrowser) {
-          res.data.set(data);
-          this.state.set(key, data);
-          return;
-        }
-        if (!this.equal(res.data(), data)) {
-          res.data.set(data);
-        }
-        this.writeCache(name, data);
+      .subscribe({
+        next: (data) => {
+          res.settled.set(true);
+          res.outcome.set('ok');
+          if (!this.isBrowser) {
+            res.data.set(data);
+            this.state.set(key, data);
+            return;
+          }
+          if (!this.equal(res.data(), data)) {
+            res.data.set(data);
+          }
+          this.writeCache(name, data);
+        },
+        error: (err: unknown) => {
+          res.settled.set(true);
+          // Si ya hay datos sembrados (TransferState/caché), consérvalos: un fallo
+          // de revalidación no debe borrar lo que ya se ve.
+          if (this.isBrowser && res.data()) {
+            res.outcome.set('ok');
+            return;
+          }
+          // 404 = de verdad no existe. Timeout/red/5xx = fallo transitorio (servidor
+          // lento o despertando): NO afirmes que no existe, ofrece reintentar.
+          const status = err instanceof HttpErrorResponse ? err.status : 0;
+          res.outcome.set(status === 404 ? 'notfound' : 'error');
+        },
       });
   }
 
   // ----------------------------- helpers -----------------------------
 
   private make<T>(): Resource<T> {
-    return { data: signal<T | null>(null), settled: signal(false), seeded: false };
+    return {
+      data: signal<T | null>(null),
+      settled: signal(false),
+      outcome: signal<FetchOutcome | null>(null),
+      seeded: false,
+    };
   }
 
   private ensure<T>(store: Map<string, Resource<T>>, slug: string): Resource<T> {

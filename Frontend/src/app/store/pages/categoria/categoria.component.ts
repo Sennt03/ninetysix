@@ -39,11 +39,17 @@ import { RevealOnScrollDirective } from '../../shared/reveal-on-scroll.directive
         } @else {
           <p class="plp__empty">Esta categoría aún no tiene productos.</p>
         }
-      } @else if (settled()) {
+      } @else if (outcome() === 'notfound') {
         <div class="plp__notfound">
           <h1>Categoría no encontrada</h1>
           <p>La categoría que buscas no existe o ya no está disponible.</p>
           <a class="plp__back" routerLink="/catalogo">Volver al catálogo</a>
+        </div>
+      } @else if (outcome() === 'error') {
+        <div class="plp__notfound">
+          <h1>No pudimos cargar la categoría</h1>
+          <p>Puede ser una conexión lenta o el servidor está despertando. Inténtalo de nuevo.</p>
+          <button type="button" class="plp__back" (click)="retry()">Reintentar</button>
         </div>
       } @else {
         <div class="plp__loading" aria-hidden="true">
@@ -71,7 +77,12 @@ export class CategoriaComponent {
   });
 
   readonly detail = computed(() => this.storefront.category(this.slug())());
-  readonly settled = computed(() => this.storefront.categorySettled(this.slug())());
+  readonly outcome = computed(() => this.storefront.categoryOutcome(this.slug())());
+
+  /** Reintenta la carga tras un fallo transitorio (servidor lento/despertando). */
+  retry(): void {
+    this.storefront.loadCategory(this.slug());
+  }
 
   constructor() {
     // Carga (SSR síncrono + cambios de slug en cliente).
