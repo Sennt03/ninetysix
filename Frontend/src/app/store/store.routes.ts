@@ -46,10 +46,12 @@ export const STORE_ROUTES: Routes = [
         loadComponent: () => import('./pages/redes/redes.component').then((m) => m.RedesComponent),
       },
       {
-        path: 'contacto',
+        // Enlace público que los vendedores comparten con el cliente. No va en el menú.
+        path: 'datos-envio',
         loadComponent: () =>
-          import('./pages/contacto/contacto.component').then((m) => m.ContactoComponent),
+          import('./pages/datos-envio/datos-envio.component').then((m) => m.DatosEnvioComponent),
       },
+      { path: 'contacto', redirectTo: 'datos-envio', pathMatch: 'full' },
       {
         path: 'orden',
         data: { hero: false },

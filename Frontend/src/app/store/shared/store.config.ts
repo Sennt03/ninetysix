@@ -98,5 +98,4 @@ export const STORE_NAV: StoreNavLink[] = [
   { label: 'Destacados', link: '/destacados' },
   { label: 'Ubicaciones', link: '/ubicaciones' },
   { label: 'Redes', link: '/redes' },
-  { label: 'Contacto', link: '/contacto' },
 ];

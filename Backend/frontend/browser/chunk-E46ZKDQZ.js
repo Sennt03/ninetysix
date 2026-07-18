@@ -1,0 +1,7 @@
+import{c as a}from"./chunk-YN24K4PI.js";function p(o){let i="";for(let r of o)i+=String.fromCharCode(r);return btoa(i).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}function c(o){let i=o.replace(/-/g,"+").replace(/_/g,"/"),r=atob(i),t=new Uint8Array(r.length);for(let e=0;e<r.length;e++)t[e]=r.charCodeAt(e);return t}function u(o){let i={v:1,i:o.map(r=>({n:r.name,s:r.slug,o:r.options.map(t=>[t.type,t.value]),p:r.price,q:r.qty}))};return p(new TextEncoder().encode(JSON.stringify(i)))}function l(o){if(!o)return null;try{let i=new TextDecoder().decode(c(o)),r=JSON.parse(i);if(!r||r.v!==1||!Array.isArray(r.i))return null;let t=r.i.filter(e=>e&&typeof e.n=="string").map(e=>({name:e.n,slug:typeof e.s=="string"?e.s:"",options:Array.isArray(e.o)?e.o.filter(n=>Array.isArray(n)).map(([n,s])=>({type:n,value:s})):[],price:typeof e.p=="number"&&e.p>=0?e.p:0,qty:typeof e.q=="number"&&e.q>0?Math.floor(e.q):1}));return t.length?{items:t,subtotal:t.reduce((e,n)=>e+n.price*n.qty,0),count:t.reduce((e,n)=>e+n.qty,0)}:null}catch{return null}}function y(o,i){let t=`Hola Ninetysix \u{1F44B} Quiero hacer este pedido:
+
+${o.map(e=>{let n=e.options.map(s=>`${s.type}: ${s.value}`).join(", ");return`\u2022 ${e.name}${n?` (${n})`:""} \xD7${e.qty}`}).join(`
+`)}
+
+\u{1F9FE} Detalle, cantidades y total del pedido:
+${i}`;return`https://wa.me/${a}?text=${encodeURIComponent(t)}`}export{u as a,l as b,y as c};

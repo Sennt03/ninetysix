@@ -113,11 +113,11 @@ export class ResenasComponent {
 
   readonly reviews: Review[] = [
     { name: 'Carlos Mendoza', location: 'Quito', product: 'Oversized Tech Jacket', text: 'La calidad de las prendas es excepcional. Cada pieza que he comprado ha superado mis expectativas. La atención al detalle y los acabados son de primer nivel.' },
-    { name: 'Roberto Silva', location: 'Cumbayá', product: 'Hoodie Premium', text: 'Estilo y confort en cada prenda. Mi marca favorita de streetwear. Los diseños son únicos y la calidad inigualable.' },
-    { name: 'Diego Vargas', location: 'La Carolina', product: 'Conjunto Urbano', text: 'Atención personalizada y productos de primera. El equipo realmente se preocupa por encontrar las prendas perfectas para cada ocasión.' },
-    { name: 'Andrés Torres', location: 'Tumbaco', product: 'Puffer Jacket', text: 'Desde que descubrí Ninetysix no compro en otro lugar. Calidad premium y un servicio impecable de principio a fin.' },
-    { name: 'Javier Ríos', location: 'La Floresta', product: 'Hoodie Premium', text: 'Cortes perfectos y telas de primera. Recibo cumplidos cada vez que uso sus prendas. Totalmente recomendado.' },
-    { name: 'Martín Castro', location: 'Los Chillos', product: 'Oversized Tech Jacket', text: 'Calidad y estilo en cada compra. La experiencia Ninetysix es de otro nivel.' },
+    { name: 'Roberto Silva', location: 'Quito', product: 'Hoodie Premium', text: 'Estilo y confort en cada prenda. Mi marca favorita de streetwear. Los diseños son únicos y la calidad inigualable.' },
+    { name: 'Diego Vargas', location: 'Quito', product: 'Conjunto Urbano', text: 'Atención personalizada y productos de primera. El equipo realmente se preocupa por encontrar las prendas perfectas para cada ocasión.' },
+    { name: 'Andrés Torres', location: 'Quito', product: 'Puffer Jacket', text: 'Desde que descubrí Ninetysix no compro en otro lugar. Calidad premium y un servicio impecable de principio a fin.' },
+    { name: 'Javier Ríos', location: 'Quito', product: 'Hoodie Premium', text: 'Cortes perfectos y telas de primera. Recibo cumplidos cada vez que uso sus prendas. Totalmente recomendado.' },
+    { name: 'Martín Castro', location: 'Quito', product: 'Oversized Tech Jacket', text: 'Calidad y estilo en cada compra. La experiencia Ninetysix es de otro nivel.' },
   ];
 
   readonly active = signal(0);

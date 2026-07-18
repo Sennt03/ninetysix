@@ -9,15 +9,17 @@ import {
   whatsappLink,
 } from '../../shared/store.config';
 
-/** Página "Contacto": datos de contacto + formulario que abre WhatsApp con el
- * mensaje ya armado (nombre, cédula, dirección y mensaje). No usa email. */
+/** Página "Datos de envío". No aparece en el menú: es un enlace público que los
+ * vendedores comparten con el cliente para que complete sus datos. Al enviar,
+ * abre WhatsApp con el mensaje ya armado (nombre, cédula, teléfono, ciudad,
+ * dirección y mensaje opcional). No usa email. */
 @Component({
-  selector: 'app-contacto',
+  selector: 'app-datos-envio',
   imports: [PageHeaderComponent, ReactiveFormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-page-header kicker="— Hablemos" title="Contacto"
-      subtitle="¿Tienes preguntas sobre productos, tallas, envíos o quieres hacer un pedido? Escríbenos y te respondemos por WhatsApp." />
+    <app-page-header kicker="— Coordinemos tu envío" title="Datos de envío"
+      subtitle="Déjanos tus datos y te contactamos por WhatsApp para coordinar tu pedido y la entrega." />
 
     <section class="cn">
       <div class="cn__info">
@@ -48,8 +50,8 @@ import {
               <svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" /></svg>
             </span>
             <h2 class="cn__done-title">¡Te abrimos WhatsApp!</h2>
-            <p class="cn__done-text">Tu mensaje quedó armado y listo. Solo pulsa enviar dentro de WhatsApp para que lo recibamos.</p>
-            <button type="button" class="cn__again" (click)="reset()">Escribir otro mensaje</button>
+            <p class="cn__done-text">Tus datos quedaron listos en un mensaje. Solo pulsa enviar dentro de WhatsApp para que los recibamos.</p>
+            <button type="button" class="cn__again" (click)="reset()">Enviar otros datos</button>
           </div>
         } @else {
           <form class="cn__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -65,15 +67,26 @@ import {
                 @if (invalid('cedula')) { <span class="cn__err">Ingresa un número de cédula válido.</span> }
               </label>
             </div>
+            <div class="cn__two">
+              <label class="cn__field">
+                <span class="cn__flabel">Teléfono</span>
+                <input class="cn__input" type="tel" inputmode="tel" formControlName="phone" placeholder="0991234567" autocomplete="tel" />
+                @if (invalid('phone')) { <span class="cn__err">Ingresa un teléfono válido.</span> }
+              </label>
+              <label class="cn__field">
+                <span class="cn__flabel">Ciudad</span>
+                <input class="cn__input" type="text" formControlName="city" placeholder="Quito" autocomplete="address-level2" />
+                @if (invalid('city')) { <span class="cn__err">Ingresa tu ciudad.</span> }
+              </label>
+            </div>
             <label class="cn__field">
               <span class="cn__flabel">Dirección</span>
-              <input class="cn__input" type="text" formControlName="address" placeholder="Calle, número, ciudad…" autocomplete="street-address" />
+              <input class="cn__input" type="text" formControlName="address" placeholder="Calle, número, referencia…" autocomplete="street-address" />
               @if (invalid('address')) { <span class="cn__err">Ingresa tu dirección.</span> }
             </label>
             <label class="cn__field">
-              <span class="cn__flabel">Mensaje</span>
-              <textarea class="cn__input cn__textarea" formControlName="message" rows="5" placeholder="Cuéntanos qué necesitas…"></textarea>
-              @if (invalid('message')) { <span class="cn__err">Escribe tu mensaje.</span> }
+              <span class="cn__flabel">Mensaje (opcional)</span>
+              <textarea class="cn__input cn__textarea" formControlName="message" rows="4" placeholder="¿Algo que debamos saber sobre tu pedido o entrega?"></textarea>
             </label>
 
             <button type="submit" class="cn__send">
@@ -87,9 +100,9 @@ import {
       </div>
     </section>
   `,
-  styleUrl: './contacto.component.scss',
+  styleUrl: './datos-envio.component.scss',
 })
-export class ContactoComponent {
+export class DatosEnvioComponent {
   private readonly fb = inject(FormBuilder);
   private readonly seo = inject(SeoService);
 
@@ -102,14 +115,16 @@ export class ContactoComponent {
   readonly form = this.fb.nonNullable.group({
     name: ['', Validators.required],
     cedula: ['', [Validators.required, Validators.pattern(/^[0-9]{6,13}$/)]],
+    phone: ['', [Validators.required, Validators.pattern(/^[0-9+\s-]{7,15}$/)]],
+    city: ['', Validators.required],
     address: ['', Validators.required],
-    message: ['', Validators.required],
+    message: [''],
   });
 
   constructor() {
     this.seo.update({
-      title: 'Contacto · Ninetysix',
-      description: 'Contáctanos por WhatsApp o desde el formulario. Te respondemos rápido.',
+      title: 'Datos de envío · Ninetysix',
+      description: 'Déjanos tus datos de envío y coordinamos tu pedido por WhatsApp.',
     });
   }
 
@@ -124,18 +139,21 @@ export class ContactoComponent {
       return;
     }
     const v = this.form.getRawValue();
-    const text = [
-      '¡Hola Ninetysix! 👋 Quiero hacer una consulta:',
+    const lines = [
+      '¡Hola Ninetysix! 👋 Estos son mis datos de envío:',
       '',
       `*Nombre:* ${v.name}`,
       `*Cédula:* ${v.cedula}`,
+      `*Teléfono:* ${v.phone}`,
+      `*Ciudad:* ${v.city}`,
       `*Dirección:* ${v.address}`,
-      '',
-      `*Mensaje:* ${v.message}`,
-    ].join('\n');
+    ];
+    if (v.message.trim()) {
+      lines.push('', `*Mensaje:* ${v.message.trim()}`);
+    }
 
     if (typeof window !== 'undefined') {
-      window.open(whatsappLink(text), '_blank');
+      window.open(whatsappLink(lines.join('\n')), '_blank');
     }
     this.sent.set(true);
   }
