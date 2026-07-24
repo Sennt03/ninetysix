@@ -1,16 +1,19 @@
 /** Configuración compartida de la tienda pública (fuente única de verdad). */
 
 /** Imagen de marca usada en los heros (servida desde `public/img/`). */
-export const HERO_IMAGE = '/img/hero.webp';
+export const HERO_IMAGE = '/img/home-banner.jpeg';
+
+/** Imagen por defecto para previews (Open Graph / WhatsApp), en `public/img/`. */
+export const SHARE_IMAGE = '/img/og-cover.jpg';
 
 /** Logo de marca (versión blanca para fondos oscuros), en `public/img/`. */
 export const BRAND_LOGO = '/img/logo-blanco.png';
 
 // --- Contacto / redes (datos de negocio) ---
-export const STORE_WHATSAPP_NUMBER = '593983474862';
+export const STORE_WHATSAPP_NUMBER = '593987571734';
 /** Enlace corto "click to chat" de WhatsApp Business (botones genéricos). */
-export const STORE_WHATSAPP = 'https://wa.me/message/N3TR75Q2YNDVO1';
-export const STORE_PHONE_DISPLAY = '+593 98 347 4862';
+export const STORE_WHATSAPP = 'https://wa.me/message/AFBTOKHKQIKBD1';
+export const STORE_PHONE_DISPLAY = '+593 98 757 1734';
 export const STORE_CITY = 'Quito, Ecuador';
 export const STORE_INSTAGRAM = 'https://www.instagram.com/ninetysix96_2026';
 export const STORE_TIKTOK = 'https://www.tiktok.com/@ninetysix96822?_r=1&_t=ZS-976sqHuYqjE';

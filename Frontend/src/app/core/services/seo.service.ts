@@ -28,7 +28,7 @@ export class SeoService {
   private readonly router = inject(Router);
 
   private readonly origin = environment.url_site.replace(/\/+$/, '');
-  private readonly defaultImage = `${this.origin}/img/hero.webp`;
+  private readonly defaultImage = `${this.origin}/img/og-cover.jpg`;
 
   /** Aplica el SEO de la página (limpia los JSON-LD de página previos). */
   update(cfg: SeoConfig): void {
