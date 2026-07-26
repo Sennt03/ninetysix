@@ -21,7 +21,7 @@ type SelectorKind = 'color' | 'size' | 'text';
       @if (product(); as p) {
         <div class="pdp__inner">
           <div class="pdp__gallery">
-            <app-product-gallery [images]="p.images" [alt]="p.name" />
+            <app-product-gallery [images]="p.images" [alt]="p.name" [goToIndex]="variantImageIndex()" />
           </div>
 
           <div class="pdp__info">
@@ -213,6 +213,21 @@ export class ProductoComponent {
         ),
       ) ?? null
     );
+  });
+
+  /**
+   * Índice de la imagen asociada a la variante elegida (el admin puede ligar
+   * cada variante a una foto). null = la variante no tiene imagen configurada y
+   * la galería se queda donde está.
+   */
+  readonly variantImageIndex = computed<number | null>(() => {
+    const p = this.product();
+    const assetId = this.selectedVariant()?.imageAssetId;
+    if (!p || !assetId) {
+      return null;
+    }
+    const i = p.images.findIndex((img) => img.assetId === assetId);
+    return i >= 0 ? i : null;
   });
 
   readonly leadText = computed(() => {

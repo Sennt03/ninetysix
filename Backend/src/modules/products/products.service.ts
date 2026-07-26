@@ -98,7 +98,7 @@ export class ProductsService {
       ? await this.assertSlugFree(dto.slug)
       : await uniqueSlug(dto.name, (s) => this.slugExists(s));
 
-    const variants = this.normalizeDefaults(dto.variants);
+    let variants = this.normalizeDefaults(dto.variants);
     this.assertComparePrices(variants);
     this.assertPublishable(dto.status ?? ProductStatus.draft, variants);
 
@@ -106,6 +106,7 @@ export class ProductsService {
     if (images.length) {
       await this.media.assertAssetsExist(images.map((i) => i.assetId));
     }
+    variants = this.normalizeVariantImages(variants, images.map((i) => i.assetId));
 
     try {
       const id = await this.prisma.$transaction(async (tx) => {
@@ -170,6 +171,20 @@ export class ProductsService {
       });
       const nextAssetIds = new Set(images.map((i) => i.assetId));
       removedAssetIds = current.map((c) => c.assetId).filter((a) => !nextAssetIds.has(a));
+    }
+
+    // El puntero variante→imagen solo vale si apunta a una imagen del producto:
+    // se compara contra las imágenes que quedarán tras este guardado.
+    if (variants) {
+      const allowed = syncImages
+        ? images.map((i) => i.assetId)
+        : (
+            await this.prisma.productImage.findMany({
+              where: { productId: id },
+              select: { assetId: true },
+            })
+          ).map((i) => i.assetId);
+      variants = this.normalizeVariantImages(variants, allowed);
     }
 
     try {
@@ -253,6 +268,7 @@ export class ProductsService {
         stockPolicy: v.stockPolicy,
         weight: v.weight ?? undefined,
         color: v.color ?? undefined,
+        imageAssetId: v.imageAssetId ?? undefined,
         isDefault: v.isDefault,
         active: v.active,
         sortOrder: v.sortOrder,
@@ -313,6 +329,7 @@ export class ProductsService {
           stockPolicy: vr.stockPolicy ?? StockPolicy.deny,
           weight: vr.weight ?? null,
           color: vr.color ?? null,
+          imageAssetId: vr.imageAssetId ?? null,
           isDefault: vr.isDefault ?? false,
           active: vr.active ?? true,
           sortOrder: vr.sortOrder ?? vi,
@@ -371,6 +388,21 @@ export class ProductsService {
       ordered.unshift(cover);
     }
     return ordered.map((img, i) => ({ ...img, sortOrder: i, isCover: i === 0 }));
+  }
+
+  /**
+   * Descarta los punteros variante→imagen que no correspondan a una imagen del
+   * producto (p. ej. la imagen se quitó en el mismo guardado). Así la galería de
+   * la tienda nunca recibe un asset que no está en su lista.
+   */
+  private normalizeVariantImages(
+    variants: VariantInputDto[],
+    allowedAssetIds: string[],
+  ): VariantInputDto[] {
+    const allowed = new Set(allowedAssetIds);
+    return variants.map((v) =>
+      v.imageAssetId && !allowed.has(v.imageAssetId) ? { ...v, imageAssetId: undefined } : v,
+    );
   }
 
   // ----------------------------- validación -----------------------------
@@ -511,6 +543,7 @@ export class ProductsService {
         stockPolicy: v.stockPolicy,
         weight: v.weight != null ? Number(v.weight) : null,
         color: v.color,
+        imageAssetId: v.imageAssetId,
         isDefault: v.isDefault,
         active: v.active,
         sortOrder: v.sortOrder,
@@ -574,6 +607,8 @@ export interface ProductVariantView {
   stockPolicy: StockPolicy;
   weight: number | null;
   color: string | null;
+  /** Imagen del producto a la que salta la galería al elegir la variante. */
+  imageAssetId: string | null;
   isDefault: boolean;
   active: boolean;
   sortOrder: number;

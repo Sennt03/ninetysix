@@ -101,6 +101,14 @@ export class VariantInputDto {
   @Matches(/^#[0-9A-Fa-f]{6}$/, { message: 'El color debe ser un hex válido como #FF5733.' })
   color?: string;
 
+  @ApiPropertyOptional({
+    description:
+      'Asset (de las imágenes del producto) al que salta la galería al elegir la variante.',
+  })
+  @IsOptional()
+  @IsUUID()
+  imageAssetId?: string;
+
   @ApiPropertyOptional({ default: false })
   @IsOptional()
   @IsBoolean()

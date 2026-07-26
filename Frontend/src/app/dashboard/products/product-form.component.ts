@@ -42,16 +42,33 @@ interface ProductImageItem {
 
 const MAX_IMAGES = 20;
 
+interface ComboPart {
+  optionType: string;
+  value: string;
+}
+
 interface VariantRow {
   key: string;
-  combo: { optionType: string; value: string }[];
+  combo: ComboPart[];
   price: number | null;
   comparePrice: number | null;
   sku: string;
   stock: number;
   color: string;
+  /** Asset de la imagen a la que salta la galería de la tienda ('' = ninguna). */
+  imageAssetId: string;
   active: boolean;
   isDefault: boolean;
+}
+
+/**
+ * Fila previa candidata a "donar" su configuración a una fila nueva.
+ * `differing` son las dimensiones cuyo valor cambia respecto de la donante
+ * (vacío = es exactamente la misma variante y se reutiliza tal cual).
+ */
+interface Donor {
+  row: VariantRow;
+  differing: { optionType: string; value: string; prevValue?: string }[];
 }
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -101,6 +118,14 @@ export class ProductFormComponent implements OnDestroy {
   readonly hasVariants = signal(false);
   readonly optionTypes = signal<EditableOptionType[]>([]);
   readonly variantRows = signal<VariantRow[]>([]);
+
+  /**
+   * Check «Copiar configuración a las variantes nuevas» (desmarcado por
+   * defecto). Al añadir valores a una opción que ya existía (otro color, otra
+   * talla…), copia los datos de la variante más parecida en vez de dejar las
+   * filas nuevas vacías. Ver `findDonor`.
+   */
+  readonly keepConfig = signal(false);
 
   readonly generalForm = this.fb.group({
     name: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(255)]),
@@ -222,6 +247,18 @@ export class ProductFormComponent implements OnDestroy {
     this.variantRows.update((rows) => rows.map((r) => (r.key === key ? { ...r, color: '' } : r)));
   }
 
+  /** Asocia la variante a una de las imágenes del producto ('' = ninguna). */
+  setRowImage(key: string, assetId: string): void {
+    this.variantRows.update((rows) =>
+      rows.map((r) => (r.key === key ? { ...r, imageAssetId: assetId } : r)),
+    );
+  }
+
+  /** Imagen asociada a la fila, para la miniatura de la tabla. */
+  rowImage(row: VariantRow): ProductImageItem | null {
+    return this.images().find((i) => i.assetId === row.imageAssetId) ?? null;
+  }
+
   toggleRowActive(key: string): void {
     this.variantRows.update((rows) =>
       rows.map((r) => (r.key === key ? { ...r, active: !r.active } : r)),
@@ -242,28 +279,57 @@ export class ProductFormComponent implements OnDestroy {
     );
   }
 
+  /**
+   * Recalcula la tabla de variantes conservando lo ya configurado.
+   *
+   * Cada combinación nueva busca una fila "donante" entre las anteriores:
+   *   1. La misma variante (aunque se haya renombrado la opción) → se reutiliza.
+   *   2. Una fila que coincide en TODAS las dimensiones que ya existían: es lo
+   *      que pasa al añadir una opción nueva (S → S-Rojo hereda de S) o al
+   *      quitarla (S-Rojo → S). Este es el comportamiento por defecto.
+   *   3. Con «Copiar configuración a las variantes nuevas» activo, además la
+   *      fila más parecida: así S-Azul copia lo de S-Rojo en vez de nacer vacía.
+   * El SKU nunca se duplica (es único en BD): si la variante no es la misma, se
+   * deriva uno nuevo a partir del de la donante.
+   */
   private regenerateVariants(): void {
     const types = this.optionTypes().filter((t) => t.values.length > 0);
     const combos = this.cartesian(types);
-    const existing = new Map(this.variantRows().map((r) => [r.key, r]));
+    const prevRows = this.variantRows();
+    const mapType = this.buildTypeMapper(prevRows, types);
 
-    let rows: VariantRow[] = combos.map((combo) => {
-      const key = this.comboKey(combo, types);
-      const prev = existing.get(key);
-      return (
-        prev ?? {
-          key,
-          combo,
-          price: null,
-          comparePrice: null,
-          sku: '',
-          stock: 0,
-          color: '',
-          active: true,
-          isDefault: false,
-        }
-      );
+    const pendingSkus: { index: number; base: string }[] = [];
+    let rows: VariantRow[] = combos.map((combo, i) => {
+      const key = this.comboKey(combo);
+      const donor = this.findDonor(combo, prevRows, mapType);
+      if (!donor) {
+        return this.blankRow(key, combo);
+      }
+      const row: VariantRow = { ...donor.row, key, combo };
+      if (donor.differing.length === 0) {
+        return row; // misma variante: se conserva todo (incluido el SKU)
+      }
+      const base = this.deriveSku(donor.row.sku, donor.differing);
+      if (base) {
+        pendingSkus.push({ index: i, base });
+      }
+      return { ...row, sku: '', isDefault: false };
     });
+
+    // Los SKU derivados se asignan al final para no chocar con los que se
+    // conservan tal cual (el SKU es único en la base de datos).
+    if (pendingSkus.length) {
+      const used = new Set(rows.map((r) => r.sku.trim().toUpperCase()).filter(Boolean));
+      for (const { index, base } of pendingSkus) {
+        let candidate = base;
+        let n = 2;
+        while (used.has(candidate.toUpperCase())) {
+          candidate = `${base}-${n++}`;
+        }
+        used.add(candidate.toUpperCase());
+        rows[index] = { ...rows[index], sku: candidate };
+      }
+    }
 
     if (rows.length > 0 && !rows.some((r) => r.isDefault)) {
       rows = rows.map((r, i) => ({ ...r, isDefault: i === 0 }));
@@ -271,15 +337,125 @@ export class ProductFormComponent implements OnDestroy {
     this.variantRows.set(rows);
   }
 
-  private cartesian(
+  private blankRow(key: string, combo: ComboPart[]): VariantRow {
+    return {
+      key,
+      combo,
+      price: null,
+      comparePrice: null,
+      sku: '',
+      stock: 0,
+      color: '',
+      imageAssetId: '',
+      active: true,
+      isDefault: false,
+    };
+  }
+
+  /**
+   * Traduce el nombre de una opción actual al que tenía en las filas previas.
+   * Por nombre si sigue existiendo y, si no, por posición: así renombrar
+   * "Talla" → "Tallas" (letra a letra, mientras se escribe) no borra la tabla.
+   */
+  private buildTypeMapper(
+    prevRows: VariantRow[],
     types: EditableOptionType[],
-  ): { optionType: string; value: string }[][] {
+  ): (name: string) => string {
+    const prevNames: string[] = [];
+    for (const row of prevRows) {
+      for (const part of row.combo) {
+        if (!prevNames.includes(part.optionType)) {
+          prevNames.push(part.optionType);
+        }
+      }
+    }
+    const newNames = types.map((t) => t.name || 'Opción');
+    const sameShape = prevNames.length === newNames.length;
+    return (name: string) => {
+      if (prevNames.includes(name)) {
+        return name;
+      }
+      const i = newNames.indexOf(name);
+      return sameShape && i >= 0 ? prevNames[i] : name;
+    };
+  }
+
+  private findDonor(
+    combo: ComboPart[],
+    prevRows: VariantRow[],
+    mapType: (name: string) => string,
+  ): Donor | null {
+    let projection: { row: VariantRow; known: number } | null = null;
+    let partial: { row: VariantRow; matched: number } | null = null;
+
+    for (const row of prevRows) {
+      const dims = combo.map((c) => ({
+        part: c,
+        prevValue: row.combo.find((p) => p.optionType === mapType(c.optionType))?.value,
+      }));
+      const known = dims.filter((d) => d.prevValue !== undefined);
+      const matched = known.filter((d) => d.prevValue === d.part.value).length;
+
+      // Coincide en todo lo que esa fila podía decir: donante directa.
+      if (known.length > 0 && matched === known.length) {
+        if (!projection || known.length > projection.known) {
+          projection = { row, known: known.length };
+        }
+      } else if (matched > 0 && (!partial || matched > partial.matched)) {
+        partial = { row, matched };
+      }
+    }
+
+    const chosen = projection?.row ?? (this.keepConfig() ? partial?.row : null);
+    if (!chosen) {
+      return null;
+    }
+    const differing = combo
+      .map((c) => ({
+        optionType: c.optionType,
+        value: c.value,
+        prevValue: chosen.combo.find((p) => p.optionType === mapType(c.optionType))?.value,
+      }))
+      .filter((d) => d.prevValue !== d.value);
+    return { row: chosen, differing };
+  }
+
+  /**
+   * SKU para una variante que hereda de otra. Sustituye en el SKU de la donante
+   * el trozo del valor que cambia (CAM-S-ROJO → CAM-S-AZUL) y, si no aparece,
+   * lo añade al final. Sin SKU de origen no inventa nada.
+   */
+  private deriveSku(
+    donorSku: string,
+    differing: { value: string; prevValue?: string }[],
+  ): string {
+    let sku = donorSku.trim();
+    if (!sku) {
+      return '';
+    }
+    for (const d of differing) {
+      const next = this.skuToken(d.value);
+      if (!next) {
+        continue;
+      }
+      const prev = d.prevValue ? this.skuToken(d.prevValue) : '';
+      const at = prev ? sku.toUpperCase().indexOf(prev) : -1;
+      sku = at >= 0 ? sku.slice(0, at) + next + sku.slice(at + prev.length) : `${sku}-${next}`;
+    }
+    return sku.slice(0, 100);
+  }
+
+  private skuToken(value: string): string {
+    return slugify(value).replace(/-/g, '').toUpperCase();
+  }
+
+  private cartesian(types: EditableOptionType[]): ComboPart[][] {
     if (types.length === 0) {
       return [];
     }
-    return types.reduce<{ optionType: string; value: string }[][]>(
+    return types.reduce<ComboPart[][]>(
       (acc, type) => {
-        const next: { optionType: string; value: string }[][] = [];
+        const next: ComboPart[][] = [];
         for (const combo of acc) {
           for (const value of type.values) {
             next.push([...combo, { optionType: type.name || 'Opción', value }]);
@@ -291,13 +467,9 @@ export class ProductFormComponent implements OnDestroy {
     );
   }
 
-  private comboKey(
-    combo: { optionType: string; value: string }[],
-    types: EditableOptionType[],
-  ): string {
-    return types
-      .map((t) => combo.find((c) => c.optionType === (t.name || 'Opción'))?.value ?? '')
-      .join('|');
+  /** Clave estable de una combinación (identidad de la fila en la tabla). */
+  private comboKey(combo: ComboPart[]): string {
+    return combo.map((c) => `${c.optionType}=${c.value}`).join('|');
   }
 
   // ----------------------------- guardar -----------------------------
@@ -410,6 +582,10 @@ export class ProductFormComponent implements OnDestroy {
 
   removeImage(assetId: string): void {
     this.images.update((list) => list.filter((i) => i.assetId !== assetId));
+    // Las variantes que apuntaban a esa imagen se quedan sin destino.
+    this.variantRows.update((rows) =>
+      rows.map((r) => (r.imageAssetId === assetId ? { ...r, imageAssetId: '' } : r)),
+    );
     // Si era una subida no guardada de esta sesión, bórrala del servidor ya.
     if (this.sessionUploads.has(assetId)) {
       this.sessionUploads.delete(assetId);
@@ -489,13 +665,21 @@ export class ProductFormComponent implements OnDestroy {
         return null;
       }
       optionTypes = types.map((t, i) => ({ name: t.name.trim(), values: t.values, sortOrder: i }));
+      const skus = this.variantRows()
+        .map((r) => r.sku.trim().toUpperCase())
+        .filter(Boolean);
+      if (new Set(skus).size !== skus.length) {
+        this.notify.error('Hay SKU repetidos entre las variantes: deben ser únicos.');
+        return null;
+      }
       variants = this.variantRows().map((r, i) => ({
-        sku: r.sku || undefined,
+        sku: r.sku.trim() || undefined,
         price: r.price ?? 0,
         comparePrice: r.comparePrice ?? undefined,
         stock: r.stock,
         stockPolicy: 'allow' as StockPolicy,
         color: r.color || undefined,
+        imageAssetId: r.imageAssetId || undefined,
         isDefault: r.isDefault,
         active: r.active,
         sortOrder: i,
@@ -586,15 +770,21 @@ export class ProductFormComponent implements OnDestroy {
       }));
       this.optionTypes.set(types);
       const rows: VariantRow[] = p.variants.map((v) => {
-        const combo = v.options.map((o) => ({ optionType: o.optionType, value: o.value }));
+        // El orden de las dimensiones debe seguir al de las opciones del
+        // producto: es el mismo que produce `cartesian` al regenerar.
+        const combo = types
+          .map((t) => v.options.find((o) => o.optionType === t.name))
+          .filter((o): o is NonNullable<typeof o> => !!o)
+          .map((o) => ({ optionType: o.optionType, value: o.value }));
         return {
-          key: this.comboKey(combo, types),
+          key: this.comboKey(combo),
           combo,
           price: v.price,
           comparePrice: v.comparePrice,
           sku: v.sku ?? '',
           stock: v.stock,
           color: v.color ?? '',
+          imageAssetId: v.imageAssetId ?? '',
           active: v.active,
           isDefault: v.isDefault,
         };

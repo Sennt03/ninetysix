@@ -95,12 +95,16 @@
         @if (images().length === 0) {
           <p class="pf__img-empty">Sin imágenes. Sube nuevas o elige de la biblioteca. La primera será la portada.</p>
         } @else {
-          <p class="pf__img-hint">{{ images().length }}/{{ maxImages }} · la primera imagen es la portada.</p>
+          <p class="pf__img-hint">
+            {{ images().length }}/{{ maxImages }} · la primera imagen es la portada. El número (#1, #2…)
+            es el que se elige en la columna «Imagen» de las variantes.
+          </p>
           <div class="pf__img-grid">
             @for (img of images(); track img.assetId; let i = $index) {
               <div class="imgcard" [class.imgcard--cover]="i === 0">
                 <div class="imgcard__thumb">
                   <img [src]="img.thumbnailUrl ?? img.url" [alt]="img.altText || 'imagen del producto'" />
+                  <span class="imgcard__num">#{{ i + 1 }}</span>
                   @if (i === 0) {
                     <span class="imgcard__cover-badge">Portada</span>
                   }
@@ -201,7 +205,7 @@
           <!-- Definición de opciones -->
           <div class="pf__options">
             <h3 class="pf__subtitle">Opciones</h3>
-            @for (ot of optionTypes(); track $index) {
+            @for (ot of optionTypes(); track $index; let ti = $index) {
               <div class="opt">
                 <mat-form-field appearance="outline" class="opt__name">
                   <mat-label>Nombre de la opción</mat-label>
@@ -209,7 +213,7 @@
                     matInput
                     [value]="ot.name"
                     placeholder="Color, Talla…"
-                    (input)="setOptionName($index, $any($event.target).value)"
+                    (input)="setOptionName(ti, $any($event.target).value)"
                   />
                 </mat-form-field>
 
@@ -217,21 +221,21 @@
                   @for (val of ot.values; track val) {
                     <span class="chip">
                       {{ val }}
-                      <button type="button" class="chip__x" (click)="removeValue($index, val)" aria-label="Quitar valor">×</button>
+                      <button type="button" class="chip__x" (click)="removeValue(ti, val)" aria-label="Quitar valor">×</button>
                     </span>
                   }
                   <input
                     #valInput
                     class="opt__add"
                     placeholder="Añadir valor y Enter"
-                    (keydown.enter)="addValue($index, valInput)"
+                    (keydown.enter)="addValue(ti, valInput)"
                   />
                 </div>
 
                 <button
                   mat-icon-button
                   type="button"
-                  (click)="removeOptionType($index)"
+                  (click)="removeOptionType(ti)"
                   matTooltip="Quitar opción"
                   aria-label="Quitar opción"
                 >
@@ -251,6 +255,14 @@
           @if (variantRows().length > 0) {
             <div class="pf__variant-table-head">
               <h3 class="pf__subtitle">Variantes ({{ variantRows().length }})</h3>
+              <mat-checkbox
+                class="pf__keep"
+                [checked]="keepConfig()"
+                (change)="keepConfig.set($event.checked)"
+                matTooltip="Al añadir un valor nuevo a una opción que ya existe (otro color, otra talla…), las variantes nuevas copian precio, stock, color e imagen de la variante equivalente ya configurada. El SKU siempre se genera nuevo porque debe ser único."
+              >
+                Copiar configuración a las variantes nuevas
+              </mat-checkbox>
               <mat-form-field appearance="outline" class="pf__apply">
                 <mat-label>Aplicar precio a todas</mat-label>
                 <input #applyPrice matInput type="number" min="0" step="0.01" />
@@ -271,6 +283,7 @@
                     <th>SKU</th>
                     <th>Stock</th>
                     <th>Color</th>
+                    <th>Imagen</th>
                     <th>Activa</th>
                     <th>Por defecto</th>
                   </tr>
@@ -305,6 +318,30 @@
                             <button type="button" class="chip__x" (click)="clearColor(row.key)" aria-label="Quitar color">×</button>
                           }
                         </div>
+                      </td>
+                      <td class="vtable__center">
+                        @if (images().length === 0) {
+                          <span class="vimg__none">—</span>
+                        } @else {
+                          <div class="vimg">
+                            <select
+                              class="vimg__select"
+                              (change)="setRowImage(row.key, $any($event.target).value)"
+                              [attr.aria-label]="'Imagen para ' + comboLabel(row)"
+                              matTooltip="Al elegir esta variante en la tienda, la galería salta a esta imagen"
+                            >
+                              <option value="" [selected]="!row.imageAssetId">Sin salto</option>
+                              @for (img of images(); track img.assetId; let i = $index) {
+                                <option [value]="img.assetId" [selected]="img.assetId === row.imageAssetId">
+                                  #{{ i + 1 }}{{ img.altText ? ' · ' + img.altText : '' }}
+                                </option>
+                              }
+                            </select>
+                            @if (rowImage(row); as img) {
+                              <img class="vimg__thumb" [src]="img.thumbnailUrl ?? img.url" alt="" />
+                            }
+                          </div>
+                        }
                       </td>
                       <td class="vtable__center">
                         <mat-checkbox [checked]="row.active" (change)="toggleRowActive(row.key)" />

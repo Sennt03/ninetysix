@@ -104,6 +104,12 @@ export class ProductGalleryComponent {
 
   readonly images = input.required<StoreImage[]>();
   readonly alt = input('');
+  /**
+   * Índice al que debe saltar la galería desde fuera (la variante elegida en la
+   * ficha tiene una imagen asociada). null = no se mueve; el usuario sigue
+   * mandando con las flechas y las miniaturas.
+   */
+  readonly goToIndex = input<number | null>(null);
 
   readonly index = signal(0);
   readonly lightbox = signal(false);
@@ -116,6 +122,14 @@ export class ProductGalleryComponent {
   });
 
   constructor() {
+    // Salto a la imagen de la variante seleccionada en la ficha.
+    effect(() => {
+      const target = this.goToIndex();
+      if (target != null && target >= 0 && target < this.images().length) {
+        this.go(target);
+      }
+    });
+
     effect(() => {
       const open = this.lightbox();
       if (this.isBrowser) {

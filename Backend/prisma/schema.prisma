@@ -141,6 +141,10 @@ model MediaAsset {
   createdAt    DateTime       @default(now())
   productLinks ProductImage[]
   categories   Category[]
+  // Variantes que "apuntan" a esta imagen (al elegir la variante en la tienda,
+  // la galería salta a ella). Es un puntero suelto: si el asset desaparece, el
+  // campo queda a NULL y la galería simplemente no se mueve.
+  variantLinks Variant[]
 
   @@map("media_assets")
 }
@@ -181,6 +185,12 @@ model Variant {
   stockPolicy  StockPolicy     @default(deny)
   weight       Decimal?        @db.Decimal(8, 2)
   color        String?         @db.VarChar(7)
+  // Imagen del producto a la que salta la galería al elegir esta variante.
+  // Apunta al MediaAsset (y no a ProductImage) porque las filas de
+  // product_images se reescriben en cada guardado del producto, mientras que el
+  // asset de la biblioteca sí es estable. Null = la galería no se mueve.
+  imageAssetId String?
+  imageAsset   MediaAsset?     @relation(fields: [imageAssetId], references: [id], onDelete: SetNull)
   isDefault    Boolean         @default(false)
   sortOrder    Int             @default(0)
   active       Boolean         @default(true)
@@ -188,6 +198,7 @@ model Variant {
 
   @@index([productId])
   @@index([sku])
+  @@index([imageAssetId])
   @@map("variants")
 }
 

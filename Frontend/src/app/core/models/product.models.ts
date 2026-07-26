@@ -37,6 +37,8 @@ export interface ProductVariant {
   stockPolicy: StockPolicy;
   weight: number | null;
   color: string | null;
+  /** Asset (de las imágenes del producto) al que salta la galería de la tienda. */
+  imageAssetId: string | null;
   isDefault: boolean;
   active: boolean;
   sortOrder: number;
@@ -99,6 +101,7 @@ export interface VariantInput {
   stockPolicy?: StockPolicy;
   weight?: number;
   color?: string;
+  imageAssetId?: string;
   isDefault?: boolean;
   active?: boolean;
   sortOrder?: number;

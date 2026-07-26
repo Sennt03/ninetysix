@@ -58,6 +58,8 @@ export interface StoreVariant {
   stock: number;
   stockPolicy: 'deny' | 'allow';
   color: string | null;
+  /** Imagen a la que salta la galería al elegir la variante (null = no se mueve). */
+  imageAssetId: string | null;
   isDefault: boolean;
   options: { optionType: string; value: string }[];
 }
@@ -70,6 +72,8 @@ export interface StoreOptionType {
 
 /** Imagen de producto (PDP). */
 export interface StoreImage {
+  /** Id del asset: es a lo que apuntan las variantes con `imageAssetId`. */
+  assetId: string;
   url: string;
   thumbnailUrl: string | null;
   altText: string | null;
