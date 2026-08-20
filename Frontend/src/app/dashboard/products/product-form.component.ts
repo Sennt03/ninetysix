@@ -369,7 +369,7 @@ export class ProductFormComponent implements OnDestroy {
         }
       }
     }
-    const newNames = types.map((t) => t.name || 'Opción');
+    const newNames = types.map((t) => this.typeName(t));
     const sameShape = prevNames.length === newNames.length;
     return (name: string) => {
       if (prevNames.includes(name)) {
@@ -449,6 +449,17 @@ export class ProductFormComponent implements OnDestroy {
     return slugify(value).replace(/-/g, '').toUpperCase();
   }
 
+  /**
+   * Nombre canónico de una opción: SIEMPRE trimeado. Es el que viaja dentro del
+   * `combo` de cada variante y debe casar carácter a carácter con el `name` que
+   * `buildPayload` envía en `optionTypes`, porque el backend enlaza
+   * variante↔valor por ese nombre. Si no casan (p. ej. "colores " con un espacio
+   * al final), el enlace se pierde y en la tienda el selector sale bloqueado.
+   */
+  private typeName(type: EditableOptionType): string {
+    return type.name.trim() || 'Opción';
+  }
+
   private cartesian(types: EditableOptionType[]): ComboPart[][] {
     if (types.length === 0) {
       return [];
@@ -458,7 +469,7 @@ export class ProductFormComponent implements OnDestroy {
         const next: ComboPart[][] = [];
         for (const combo of acc) {
           for (const value of type.values) {
-            next.push([...combo, { optionType: type.name || 'Opción', value }]);
+            next.push([...combo, { optionType: this.typeName(type), value }]);
           }
         }
         return next;
@@ -662,6 +673,12 @@ export class ProductFormComponent implements OnDestroy {
       const types = this.optionTypes().filter((t) => t.name.trim() && t.values.length);
       if (types.length === 0 || this.variantRows().length === 0) {
         this.notify.error('Define al menos una opción con sus valores.');
+        return null;
+      }
+      // Una opción con valores pero sin nombre generaría combinaciones que el
+      // backend no sabría enlazar: se avisa aquí en vez de guardar a medias.
+      if (this.optionTypes().some((t) => !t.name.trim() && t.values.length)) {
+        this.notify.error('Hay una opción con valores pero sin nombre: ponle un nombre.');
         return null;
       }
       optionTypes = types.map((t, i) => ({ name: t.name.trim(), values: t.values, sortOrder: i }));

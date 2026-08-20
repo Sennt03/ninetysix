@@ -337,11 +337,17 @@ export class ProductsService {
       });
       for (const opt of vr.options ?? []) {
         const valueId = valueIdByKey.get(this.optKey(opt.optionType, opt.value));
-        if (valueId) {
-          await tx.variantOption.create({
-            data: { variantId: variant.id, optionValueId: valueId },
-          });
+        // Sin enlace, la variante queda "suelta": la tienda no puede seleccionarla
+        // (el selector de esa opción sale bloqueado) y antes el fallo pasaba
+        // inadvertido porque el guardado respondía 200. Mejor rechazar el guardado.
+        if (!valueId) {
+          throw new BadRequestException(
+            `La variante ${vr.sku ?? `#${vi + 1}`} referencia la opción "${opt.optionType}: ${opt.value}", que no está declarada en las opciones del producto.`,
+          );
         }
+        await tx.variantOption.create({
+          data: { variantId: variant.id, optionValueId: valueId },
+        });
       }
     }
   }
