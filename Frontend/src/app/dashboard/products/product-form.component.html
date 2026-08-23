@@ -314,6 +314,19 @@
                             (input)="updateRow(row.key, 'color', $event)"
                             aria-label="Color de variante"
                           />
+                          <input
+                            type="text"
+                            class="vcolor__hex"
+                            [value]="row.color"
+                            placeholder="#cccccc"
+                            maxlength="7"
+                            spellcheck="false"
+                            autocapitalize="off"
+                            autocomplete="off"
+                            (input)="onHexInput(row.key, $event)"
+                            (blur)="onHexBlur(row.key, $event)"
+                            aria-label="Código hex del color"
+                          />
                           @if (row.color) {
                             <button type="button" class="chip__x" (click)="clearColor(row.key)" aria-label="Quitar color">×</button>
                           }

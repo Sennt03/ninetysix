@@ -247,6 +247,64 @@ export class ProductFormComponent implements OnDestroy {
     this.variantRows.update((rows) => rows.map((r) => (r.key === key ? { ...r, color: '' } : r)));
   }
 
+  /**
+   * Hex escrito o pegado en la casilla de texto. Existe porque el selector nativo
+   * `<input type="color">` no es igual en todos los navegadores: Chrome muestra un
+   * campo hex donde copiar/pegar, pero Safari en macOS abre el panel de color del
+   * sistema, sin sitio donde pegar un código. La casilla funciona en todos.
+   *
+   * Solo confirma cuando ya hay 6 dígitos: así no estorba mientras se teclea
+   * (escribir "abc" camino de "abcdef" no se auto-expande a mitad de palabra).
+   */
+  onHexInput(key: string, event: Event): void {
+    const hex = this.parseHex((event.target as HTMLInputElement).value, false);
+    if (hex) {
+      this.setColor(key, hex);
+    }
+  }
+
+  /**
+   * Al salir del campo se cierra lo que quedó a medias: admite el atajo de 3
+   * dígitos (#abc), vacía el color si se borró el texto y, si lo escrito no es un
+   * hex válido, repone el valor anterior en vez de dejar basura a la vista.
+   */
+  onHexBlur(key: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const raw = input.value.trim();
+    if (!raw) {
+      this.clearColor(key);
+      input.value = '';
+      return;
+    }
+    const hex = this.parseHex(raw, true);
+    if (hex) {
+      this.setColor(key, hex);
+      input.value = hex;
+      return;
+    }
+    input.value = this.variantRows().find((r) => r.key === key)?.color ?? '';
+  }
+
+  /**
+   * Normaliza un hex a `#rrggbb` en minúsculas (la columna `color` es VARCHAR(7)).
+   * Tolera lo que se suele pegar: con o sin `#`, en mayúsculas y con espacios.
+   * Con `short`, acepta además el atajo de 3 dígitos y lo expande.
+   */
+  private parseHex(raw: string, short: boolean): string | null {
+    const s = raw.trim().replace(/^#/, '');
+    if (/^[0-9a-fA-F]{6}$/.test(s)) {
+      return `#${s.toLowerCase()}`;
+    }
+    if (short && /^[0-9a-fA-F]{3}$/.test(s)) {
+      return `#${[...s.toLowerCase()].map((c) => c + c).join('')}`;
+    }
+    return null;
+  }
+
+  private setColor(key: string, color: string): void {
+    this.variantRows.update((rows) => rows.map((r) => (r.key === key ? { ...r, color } : r)));
+  }
+
   /** Asocia la variante a una de las imágenes del producto ('' = ninguna). */
   setRowImage(key: string, assetId: string): void {
     this.variantRows.update((rows) =>

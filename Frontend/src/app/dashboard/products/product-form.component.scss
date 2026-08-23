@@ -313,6 +313,25 @@
   background: transparent;
 }
 
+/* Casilla para escribir/pegar el hex. El selector nativo de Safari (panel de
+   color de macOS) no ofrece un campo donde pegar un código, así que esta es la
+   vía portable para meter un color exacto en cualquier navegador. */
+.vcolor__hex {
+  width: 76px;
+  padding: 0.3rem 0.35rem;
+  border: 1px solid var(--brand-slate-200);
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  background: var(--brand-surface);
+  color: var(--brand-slate-900);
+}
+
+.vcolor__hex:focus {
+  outline: none;
+  border-color: var(--brand-slate-900);
+}
+
 /* ----------------------------- imágenes ----------------------------- */
 .pf__img-actions {
   display: flex;

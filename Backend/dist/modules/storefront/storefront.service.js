@@ -42,7 +42,7 @@ const DETAIL_INCLUDE = {
     categories: { select: { name: true, slug: true } },
     images: {
         orderBy: [{ isCover: 'desc' }, { sortOrder: 'asc' }],
-        select: { altText: true, asset: { select: { url: true, thumbnailUrl: true } } },
+        select: { altText: true, assetId: true, asset: { select: { url: true, thumbnailUrl: true } } },
     },
     optionTypes: {
         orderBy: { sortOrder: 'asc' },
@@ -251,6 +251,7 @@ let StorefrontService = class StorefrontService {
             metaDescription: p.metaDescription,
             categories: p.categories.map((c) => ({ name: c.name, slug: c.slug })),
             images: p.images.map((img) => ({
+                assetId: img.assetId,
                 url: img.asset.url,
                 thumbnailUrl: img.asset.thumbnailUrl,
                 altText: img.altText,
@@ -270,6 +271,7 @@ let StorefrontService = class StorefrontService {
                     stock: v.stock,
                     stockPolicy: v.stockPolicy,
                     color: v.color,
+                    imageAssetId: v.imageAssetId,
                     isDefault: v.isDefault,
                     options: v.options.map((o) => ({
                         optionType: o.optionValue.optionType.name,

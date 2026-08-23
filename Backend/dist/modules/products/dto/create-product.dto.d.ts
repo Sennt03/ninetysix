@@ -17,6 +17,7 @@ export declare class VariantInputDto {
     stockPolicy?: StockPolicy;
     weight?: number;
     color?: string;
+    imageAssetId?: string;
     isDefault?: boolean;
     active?: boolean;
     sortOrder?: number;

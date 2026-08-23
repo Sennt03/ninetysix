@@ -20,6 +20,7 @@ export declare class ProductsService {
     private writeOptionsAndVariants;
     private writeImages;
     private normalizeImages;
+    private normalizeVariantImages;
     private normalizeDefaults;
     private assertComparePrices;
     private assertPublishable;
@@ -69,6 +70,7 @@ export interface ProductVariantView {
     stockPolicy: StockPolicy;
     weight: number | null;
     color: string | null;
+    imageAssetId: string | null;
     isDefault: boolean;
     active: boolean;
     sortOrder: number;

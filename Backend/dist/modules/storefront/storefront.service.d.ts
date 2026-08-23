@@ -42,6 +42,7 @@ export interface StoreProductVariant {
     stock: number;
     stockPolicy: string;
     color: string | null;
+    imageAssetId: string | null;
     isDefault: boolean;
     options: {
         optionType: string;
@@ -62,6 +63,7 @@ export interface StoreProductDetail {
         slug: string;
     }[];
     images: {
+        assetId: string;
         url: string;
         thumbnailUrl: string | null;
         altText: string | null;

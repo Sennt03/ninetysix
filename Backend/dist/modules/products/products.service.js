@@ -86,13 +86,14 @@ let ProductsService = class ProductsService {
         const slug = dto.slug
             ? await this.assertSlugFree(dto.slug)
             : await (0, slug_util_1.uniqueSlug)(dto.name, (s) => this.slugExists(s));
-        const variants = this.normalizeDefaults(dto.variants);
+        let variants = this.normalizeDefaults(dto.variants);
         this.assertComparePrices(variants);
         this.assertPublishable(dto.status ?? client_1.ProductStatus.draft, variants);
         const images = this.normalizeImages(dto.images);
         if (images.length) {
             await this.media.assertAssetsExist(images.map((i) => i.assetId));
         }
+        variants = this.normalizeVariantImages(variants, images.map((i) => i.assetId));
         try {
             const id = await this.prisma.$transaction(async (tx) => {
                 const product = await tx.product.create({
@@ -154,6 +155,15 @@ let ProductsService = class ProductsService {
             });
             const nextAssetIds = new Set(images.map((i) => i.assetId));
             removedAssetIds = current.map((c) => c.assetId).filter((a) => !nextAssetIds.has(a));
+        }
+        if (variants) {
+            const allowed = syncImages
+                ? images.map((i) => i.assetId)
+                : (await this.prisma.productImage.findMany({
+                    where: { productId: id },
+                    select: { assetId: true },
+                })).map((i) => i.assetId);
+            variants = this.normalizeVariantImages(variants, allowed);
         }
         try {
             await this.prisma.$transaction(async (tx) => {
@@ -234,6 +244,7 @@ let ProductsService = class ProductsService {
                 stockPolicy: v.stockPolicy,
                 weight: v.weight ?? undefined,
                 color: v.color ?? undefined,
+                imageAssetId: v.imageAssetId ?? undefined,
                 isDefault: v.isDefault,
                 active: v.active,
                 sortOrder: v.sortOrder,
@@ -278,6 +289,7 @@ let ProductsService = class ProductsService {
                     stockPolicy: vr.stockPolicy ?? client_1.StockPolicy.deny,
                     weight: vr.weight ?? null,
                     color: vr.color ?? null,
+                    imageAssetId: vr.imageAssetId ?? null,
                     isDefault: vr.isDefault ?? false,
                     active: vr.active ?? true,
                     sortOrder: vr.sortOrder ?? vi,
@@ -285,11 +297,12 @@ let ProductsService = class ProductsService {
             });
             for (const opt of vr.options ?? []) {
                 const valueId = valueIdByKey.get(this.optKey(opt.optionType, opt.value));
-                if (valueId) {
-                    await tx.variantOption.create({
-                        data: { variantId: variant.id, optionValueId: valueId },
-                    });
+                if (!valueId) {
+                    throw new common_1.BadRequestException(`La variante ${vr.sku ?? `#${vi + 1}`} referencia la opción "${opt.optionType}: ${opt.value}", que no está declarada en las opciones del producto.`);
                 }
+                await tx.variantOption.create({
+                    data: { variantId: variant.id, optionValueId: valueId },
+                });
             }
         }
     }
@@ -325,6 +338,10 @@ let ProductsService = class ProductsService {
             ordered.unshift(cover);
         }
         return ordered.map((img, i) => ({ ...img, sortOrder: i, isCover: i === 0 }));
+    }
+    normalizeVariantImages(variants, allowedAssetIds) {
+        const allowed = new Set(allowedAssetIds);
+        return variants.map((v) => v.imageAssetId && !allowed.has(v.imageAssetId) ? { ...v, imageAssetId: undefined } : v);
     }
     normalizeDefaults(variants) {
         const idx = variants.findIndex((v) => v.isDefault);
@@ -449,6 +466,7 @@ let ProductsService = class ProductsService {
                 stockPolicy: v.stockPolicy,
                 weight: v.weight != null ? Number(v.weight) : null,
                 color: v.color,
+                imageAssetId: v.imageAssetId,
                 isDefault: v.isDefault,
                 active: v.active,
                 sortOrder: v.sortOrder,
