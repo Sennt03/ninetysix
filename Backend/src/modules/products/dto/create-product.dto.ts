@@ -234,10 +234,10 @@ export class CreateProductDto {
   @Type(() => OptionTypeInputDto)
   optionTypes?: OptionTypeInputDto[];
 
-  @ApiPropertyOptional({ type: [ProductImageInputDto], description: 'Máx 20 imágenes.' })
+  @ApiPropertyOptional({ type: [ProductImageInputDto], description: 'Máx 50 imágenes.' })
   @IsOptional()
   @IsArray()
-  @ArrayMaxSize(20)
+  @ArrayMaxSize(50)
   @ValidateNested({ each: true })
   @Type(() => ProductImageInputDto)
   images?: ProductImageInputDto[];

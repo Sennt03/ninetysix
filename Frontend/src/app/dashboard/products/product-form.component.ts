@@ -40,7 +40,7 @@ interface ProductImageItem {
   altText: string;
 }
 
-const MAX_IMAGES = 20;
+const MAX_IMAGES = 50;
 
 interface ComboPart {
   optionType: string;
