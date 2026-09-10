@@ -30,6 +30,8 @@ export interface MediaAssetView {
   createdAt: Date;
   inUse: boolean;
   usageCount: number;
+  /** Si al subir se detectó una imagen idéntica ya existente, su nombre (para avisar). */
+  duplicateOfName?: string | null;
 }
 
 export interface MediaAssetDetail extends MediaAssetView {
@@ -77,9 +79,13 @@ export class MediaService {
   async upload(files: Express.Multer.File[]): Promise<MediaAssetView[]> {
     const created: MediaAssetView[] = [];
     for (const file of files) {
-      const { asset, reused } = await this.persistBuffer(file.buffer, file.originalname ?? null);
-      // Si se reutilizó por hash, el asset puede estar ya en uso: refleja su conteo real.
-      created.push(this.toView(asset, reused ? await this.usageCountOf(asset.id) : 0));
+      const { asset, duplicateOfName } = await this.persistBuffer(
+        file.buffer,
+        file.originalname ?? null,
+      );
+      // Asset recién creado: aún no está en uso (usageCount 0). Si el contenido ya
+      // existía, `duplicateOfName` lleva el nombre de la copia previa para avisar.
+      created.push({ ...this.toView(asset, 0), duplicateOfName });
     }
     return created;
   }
@@ -121,56 +127,59 @@ export class MediaService {
   }
 
   /**
-   * Persiste un buffer como asset deduplicando por sha256: si ya existe un
-   * asset con el mismo hash, lo reutiliza (no reescribe el archivo).
+   * Persiste un buffer como un asset NUEVO (ya NO deduplica: cada subida crea su
+   * propio archivo aunque el contenido sea idéntico). Aun así detecta si ya existe
+   * otra imagen con el mismo contenido (sha256) para poder avisar: devuelve
+   * `duplicateOfName` con el nombre de la copia previa, o null si no la hay.
+   *
+   * El campo `hash` es único, así que para permitir copias solo la PRIMERA imagen
+   * de un contenido conserva su hash; las siguientes van con `hash: null`. Así se
+   * pueden subir duplicados y a la vez seguir detectándolos contra esa primera.
    */
   private async persistBuffer(
     buffer: Buffer,
     originalName: string | null,
-  ): Promise<{ asset: MediaAsset; reused: boolean }> {
+  ): Promise<{ asset: MediaAsset; duplicateOfName: string | null }> {
     const hash = createHash('sha256').update(buffer).digest('hex');
-    const existing = await this.prisma.mediaAsset.findUnique({ where: { hash } });
-    if (existing) {
-      return { asset: existing, reused: true };
-    }
+    const existing = await this.prisma.mediaAsset.findFirst({
+      where: { hash },
+      orderBy: { createdAt: 'asc' },
+      select: { originalName: true },
+    });
     const processed = await this.storage.processAndSave({
       buffer,
       originalname: originalName ?? undefined,
     } as Express.Multer.File);
+    const data = {
+      filename: processed.filename,
+      originalName: processed.originalName,
+      url: processed.url,
+      thumbnailUrl: processed.thumbnailUrl,
+      mimeType: processed.mimeType,
+      sizeBytes: processed.sizeBytes,
+      width: processed.width,
+      height: processed.height,
+    };
     try {
       const asset = await this.prisma.mediaAsset.create({
-        data: {
-          filename: processed.filename,
-          originalName: processed.originalName,
-          url: processed.url,
-          thumbnailUrl: processed.thumbnailUrl,
-          mimeType: processed.mimeType,
-          sizeBytes: processed.sizeBytes,
-          width: processed.width,
-          height: processed.height,
-          hash,
-        },
+        // Solo la primera copia guarda el hash (índice único); las demás, null.
+        data: { ...data, hash: existing ? null : hash },
       });
-      return { asset, reused: false };
+      return { asset, duplicateOfName: existing?.originalName ?? null };
     } catch (e) {
-      // Carrera: otro proceso insertó el mismo hash entre el check y el create.
+      // Carrera: otra subida idéntica guardó el hash entre el findFirst y el
+      // create. Reintenta guardando ESTA copia con hash null (es un duplicado).
       if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-        const again = await this.prisma.mediaAsset.findUnique({ where: { hash } });
-        if (again) {
-          await this.storage.deleteFiles({ filename: processed.filename });
-          return { asset: again, reused: true };
-        }
+        const first = await this.prisma.mediaAsset.findFirst({
+          where: { hash },
+          orderBy: { createdAt: 'asc' },
+          select: { originalName: true },
+        });
+        const asset = await this.prisma.mediaAsset.create({ data: { ...data, hash: null } });
+        return { asset, duplicateOfName: first?.originalName ?? existing?.originalName ?? null };
       }
       throw e;
     }
-  }
-
-  private async usageCountOf(assetId: string): Promise<number> {
-    const a = await this.prisma.mediaAsset.findUnique({
-      where: { id: assetId },
-      include: { _count: { select: { productLinks: true, categories: true } } },
-    });
-    return a ? a._count.productLinks + a._count.categories : 0;
   }
 
   async findOne(id: string): Promise<MediaAssetDetail> {

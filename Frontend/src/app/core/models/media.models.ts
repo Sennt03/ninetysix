@@ -15,6 +15,8 @@ export interface MediaAsset {
   createdAt: string;
   inUse: boolean;
   usageCount: number;
+  /** Si al subir se detectó una imagen idéntica ya existente, su nombre (aviso). */
+  duplicateOfName?: string | null;
 }
 
 export interface MediaUsage {

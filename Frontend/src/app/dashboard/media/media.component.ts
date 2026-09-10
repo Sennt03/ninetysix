@@ -141,6 +141,13 @@ export class MediaComponent {
       next: (created) => {
         this.uploading.set(false);
         this.notify.success(`${created.length} imagen(es) subida(s)`);
+        for (const a of created) {
+          if (a.duplicateOfName) {
+            this.notify.info(
+              `Ya existía una imagen idéntica (subida como "${a.duplicateOfName}"). Se subió igualmente.`,
+            );
+          }
+        }
         this.pageIndex.set(0);
         this.load();
       },

@@ -626,6 +626,13 @@ export class ProductFormComponent implements OnDestroy {
         // Marca estas subidas como efímeras de la sesión (candidatas a limpieza).
         created.forEach((a) => this.sessionUploads.add(a.id));
         this.addAssets(created);
+        for (const a of created) {
+          if (a.duplicateOfName) {
+            this.notify.info(
+              `Ya existía una imagen idéntica (subida como "${a.duplicateOfName}"). Se subió igualmente.`,
+            );
+          }
+        }
       },
       error: (err) => {
         this.uploadingImages.set(false);
