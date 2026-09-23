@@ -1,0 +1,7 @@
+services:
+  mongo:
+    restart: "no"
+  postgres:
+    restart: "no"
+  mysql:
+    restart: "no"

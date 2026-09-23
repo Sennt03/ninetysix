@@ -1,15 +1,15 @@
 import { STORE_WHATSAPP_NUMBER } from './store.config';
 
 /**
- * Codificación del pedido en un enlace compacto y ofuscado (base64url).
+ * Codec del enlace de pedido. El token adjunto al mensaje de WhatsApp ahora es
+ * **compacto**: solo lleva referencias (slug del producto, id de variante y
+ * cantidad) codificadas en base64url. Los datos reales (nombre, precio e imagen)
+ * se resuelven en la página `/orden` desde el catálogo.
  *
- * El enlace es el **valor real** del pedido: lleva embebidos los productos,
- * variantes, cantidades y precios. A diferencia del texto del mensaje de
- * WhatsApp (editable por el cliente), este enlace no se manipula casualmente y
- * al abrirlo reconstruye la pantalla de orden con el detalle y el total reales.
- *
- * Es autocontenido: no depende de la API ni de registrar órdenes; basta con los
- * datos serializados en la URL para pintar la página.
+ * Antes el token embebía nombre + opciones + precio de cada producto, lo que
+ * hacía el enlace muy largo (WhatsApp lo cortaba/rompía) y sin imagen (la orden
+ * mostraba solo iniciales). Con referencias el enlace es corto y la página puede
+ * mostrar la imagen real del catálogo.
  */
 
 export interface OrderOption {
@@ -17,29 +17,18 @@ export interface OrderOption {
   value: string;
 }
 
-/** Una línea del pedido (producto + variante elegida). */
-export interface OrderItem {
-  name: string;
+/** Referencia compacta de una línea del pedido (lo que viaja en el enlace). */
+export interface OrderRef {
   slug: string;
-  options: OrderOption[];
-  /** Precio unitario de la variante. */
-  price: number;
+  variantId: string;
   qty: number;
 }
 
-/** Pedido decodificado, con totales ya calculados. */
-export interface DecodedOrder {
-  items: OrderItem[];
-  /** Suma de precio × cantidad. */
-  subtotal: number;
-  /** Total de unidades. */
-  count: number;
-}
-
-/** Payload serializado (claves cortas para mantener el enlace breve). */
-interface OrderPayload {
-  v: 1;
-  i: { n: string; s: string; o: [string, string][]; p: number; q: number }[];
+/** Ítem con los datos de texto para el mensaje de WhatsApp. */
+export interface OrderTextItem {
+  name: string;
+  options: OrderOption[];
+  qty: number;
 }
 
 // --------------------------- base64url (UTF-8) ---------------------------
@@ -64,51 +53,40 @@ function b64urlToBytes(raw: string): Uint8Array {
 
 // ------------------------------- encode/decode -------------------------------
 
-/** Serializa las líneas del pedido en una cadena base64url para la URL. */
-export function encodeOrder(items: OrderItem[]): string {
-  const payload: OrderPayload = {
-    v: 1,
-    i: items.map((it) => ({
-      n: it.name,
-      s: it.slug,
-      o: it.options.map((o) => [o.type, o.value] as [string, string]),
-      p: it.price,
-      q: it.qty,
-    })),
-  };
-  return bytesToB64url(new TextEncoder().encode(JSON.stringify(payload)));
+/** Serializa las referencias del pedido en una cadena base64url para la URL. */
+export function encodeOrder(items: OrderRef[]): string {
+  const compact = items.map((i) => [i.slug, i.variantId, i.qty]);
+  return bytesToB64url(new TextEncoder().encode(JSON.stringify(compact)));
 }
 
-/** Reconstruye el pedido desde la cadena de la URL. `null` si es inválida. */
-export function decodeOrder(raw: string | null | undefined): DecodedOrder | null {
+/** Reconstruye las referencias desde la cadena de la URL. `null` si es inválida. */
+export function decodeOrder(raw: string | null | undefined): OrderRef[] | null {
   if (!raw) {
     return null;
   }
   try {
-    const json = new TextDecoder().decode(b64urlToBytes(raw));
-    const payload = JSON.parse(json) as OrderPayload;
-    if (!payload || payload.v !== 1 || !Array.isArray(payload.i)) {
+    const parsed = JSON.parse(new TextDecoder().decode(b64urlToBytes(raw))) as unknown;
+    if (!Array.isArray(parsed)) {
       return null;
     }
-    const items: OrderItem[] = payload.i
-      .filter((l) => l && typeof l.n === 'string')
-      .map((l) => ({
-        name: l.n,
-        slug: typeof l.s === 'string' ? l.s : '',
-        options: Array.isArray(l.o)
-          ? l.o.filter((o) => Array.isArray(o)).map(([type, value]) => ({ type, value }))
-          : [],
-        price: typeof l.p === 'number' && l.p >= 0 ? l.p : 0,
-        qty: typeof l.q === 'number' && l.q > 0 ? Math.floor(l.q) : 1,
-      }));
-    if (!items.length) {
-      return null;
+    const items: OrderRef[] = [];
+    for (const row of parsed) {
+      if (!Array.isArray(row) || row.length < 3) {
+        continue;
+      }
+      const [slug, variantId, qty] = row as [unknown, unknown, unknown];
+      const n = Number(qty);
+      if (
+        typeof slug !== 'string' ||
+        typeof variantId !== 'string' ||
+        !Number.isFinite(n) ||
+        n <= 0
+      ) {
+        continue;
+      }
+      items.push({ slug, variantId, qty: Math.floor(n) });
     }
-    return {
-      items,
-      subtotal: items.reduce((sum, i) => sum + i.price * i.qty, 0),
-      count: items.reduce((n, i) => n + i.qty, 0),
-    };
+    return items.length ? items : null;
   } catch {
     return null;
   }
@@ -121,10 +99,7 @@ export function decodeOrder(raw: string | null | undefined): DecodedOrder | null
  * productos a comprar (sin precios) y adjunta el enlace al detalle, que sí
  * contiene precios y total reales del pedido.
  */
-export function orderWhatsappUrl(
-  items: Pick<OrderItem, 'name' | 'options' | 'qty'>[],
-  orderUrl: string,
-): string {
+export function orderWhatsappUrl(items: OrderTextItem[], orderUrl: string): string {
   const lines = items.map((i) => {
     const opts = i.options.map((o) => `${o.type}: ${o.value}`).join(', ');
     return `• ${i.name}${opts ? ` (${opts})` : ''} ×${i.qty}`;

@@ -1,5 +1,6 @@
 :host {
   display: block;
+  overflow-x: hidden;
 }
 
 .pdp {
@@ -7,6 +8,8 @@
   margin: 0 auto;
   /* Cabecera fija sólida: deja aire arriba. */
   padding: clamp(100px, 13vh, 130px) clamp(16px, 5vw, 40px) clamp(48px, 7vw, 90px);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .pdp__inner {
@@ -14,6 +17,16 @@
   grid-template-columns: 1fr;
   gap: clamp(24px, 4vw, 56px);
   align-items: start;
+  min-width: 0;
+}
+
+/* Evita que la galería o la info fuercen el ancho más allá de la pantalla:
+   sin esto, un nombre/palabra larga estira la columna y la imagen se sale
+   (el layout de escritorio ya usaba minmax(0,...); en móvil faltaba). */
+.pdp__gallery,
+.pdp__info {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .pdp__crumbs {
@@ -41,6 +54,8 @@
   text-transform: uppercase;
   color: var(--st-text);
   letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .pdp__lead {
   margin: 0 0 18px;
@@ -54,6 +69,9 @@
   border-radius: var(--st-radius);
   background: var(--st-surface);
   border: 1px solid var(--st-line);
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 .pdp__box-label {
   display: block;
