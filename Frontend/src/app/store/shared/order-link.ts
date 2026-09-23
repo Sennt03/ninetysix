@@ -17,11 +17,30 @@ export interface OrderOption {
   value: string;
 }
 
-/** Referencia compacta de una línea del pedido (lo que viaja en el enlace). */
+/**
+ * Referencia de una línea del pedido decodificada del enlace.
+ *
+ * - Formato **nuevo** (compacto): solo `slug + variantId + qty`; el resto se
+ *   resuelve del catálogo (precio en vivo).
+ * - Formato **viejo** (retrocompat): traía nombre/opciones/precio embebidos, que
+ *   se conservan aquí (`name`/`options`/`price`) para que esos enlaces ya
+ *   enviados sigan funcionando con su **precio congelado**. En ese caso
+ *   `variantId` es null y del catálogo solo se toma la imagen.
+ */
 export interface OrderRef {
   slug: string;
-  variantId: string;
+  variantId: string | null;
   qty: number;
+  /** Solo formato viejo: datos embebidos (precio congelado). */
+  name?: string;
+  options?: OrderOption[];
+  price?: number;
+}
+
+/** Payload del formato viejo (datos embebidos por línea). */
+interface LegacyPayload {
+  v: number;
+  i: { n?: string; s?: string; o?: [string, string][]; p?: number; q?: number }[];
 }
 
 /** Ítem con los datos de texto para el mensaje de WhatsApp. */
@@ -59,34 +78,66 @@ export function encodeOrder(items: OrderRef[]): string {
   return bytesToB64url(new TextEncoder().encode(JSON.stringify(compact)));
 }
 
-/** Reconstruye las referencias desde la cadena de la URL. `null` si es inválida. */
+/**
+ * Reconstruye las referencias desde la cadena de la URL. `null` si es inválida.
+ * Acepta el formato nuevo (array compacto) y el viejo (objeto con datos
+ * embebidos) para no romper enlaces ya enviados a clientes.
+ */
 export function decodeOrder(raw: string | null | undefined): OrderRef[] | null {
   if (!raw) {
     return null;
   }
   try {
     const parsed = JSON.parse(new TextDecoder().decode(b64urlToBytes(raw))) as unknown;
-    if (!Array.isArray(parsed)) {
-      return null;
-    }
-    const items: OrderRef[] = [];
-    for (const row of parsed) {
-      if (!Array.isArray(row) || row.length < 3) {
-        continue;
+
+    // Formato nuevo: array de [slug, variantId, qty].
+    if (Array.isArray(parsed)) {
+      const items: OrderRef[] = [];
+      for (const row of parsed) {
+        if (!Array.isArray(row) || row.length < 3) {
+          continue;
+        }
+        const [slug, variantId, qty] = row as [unknown, unknown, unknown];
+        const n = Number(qty);
+        if (
+          typeof slug !== 'string' ||
+          typeof variantId !== 'string' ||
+          !Number.isFinite(n) ||
+          n <= 0
+        ) {
+          continue;
+        }
+        items.push({ slug, variantId, qty: Math.floor(n) });
       }
-      const [slug, variantId, qty] = row as [unknown, unknown, unknown];
-      const n = Number(qty);
-      if (
-        typeof slug !== 'string' ||
-        typeof variantId !== 'string' ||
-        !Number.isFinite(n) ||
-        n <= 0
-      ) {
-        continue;
-      }
-      items.push({ slug, variantId, qty: Math.floor(n) });
+      return items.length ? items : null;
     }
-    return items.length ? items : null;
+
+    // Formato viejo (retrocompat): { v, i:[{ n, s, o, p, q }] }. Conserva el
+    // precio embebido (congelado); del catálogo solo se resolverá la imagen.
+    if (parsed && typeof parsed === 'object' && Array.isArray((parsed as LegacyPayload).i)) {
+      const items: OrderRef[] = [];
+      for (const l of (parsed as LegacyPayload).i) {
+        if (!l || typeof l.s !== 'string') {
+          continue;
+        }
+        const n = Number(l.q);
+        items.push({
+          slug: l.s,
+          variantId: null,
+          qty: Number.isFinite(n) && n > 0 ? Math.floor(n) : 1,
+          name: typeof l.n === 'string' ? l.n : l.s,
+          options: Array.isArray(l.o)
+            ? l.o
+                .filter((o) => Array.isArray(o) && o.length >= 2)
+                .map(([type, value]) => ({ type, value }))
+            : [],
+          price: typeof l.p === 'number' && l.p >= 0 ? l.p : 0,
+        });
+      }
+      return items.length ? items : null;
+    }
+
+    return null;
   } catch {
     return null;
   }

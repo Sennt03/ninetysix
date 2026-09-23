@@ -181,6 +181,26 @@ export class OrdenComponent {
     const out: OrderLine[] = [];
     for (const ref of refs) {
       const product = this.storefront.product(ref.slug)();
+      const image = product
+        ? (product.images[0]?.thumbnailUrl ?? product.images[0]?.url ?? null)
+        : null;
+
+      // Formato viejo (retrocompat): datos embebidos, precio congelado. Se muestra
+      // siempre —exista o no el producto—; del catálogo solo se toma la imagen.
+      if (ref.name != null && ref.price != null) {
+        out.push({
+          slug: ref.slug,
+          name: ref.name,
+          image,
+          options: ref.options ?? [],
+          price: ref.price,
+          qty: ref.qty,
+          subtotal: ref.price * ref.qty,
+        });
+        continue;
+      }
+
+      // Formato nuevo: todo del catálogo (se omite si el producto/variante ya no existe).
       if (!product) {
         continue;
       }
@@ -190,7 +210,6 @@ export class OrdenComponent {
       if (!variant) {
         continue;
       }
-      const image = product.images[0]?.thumbnailUrl ?? product.images[0]?.url ?? null;
       out.push({
         slug: product.slug,
         name: product.name,
